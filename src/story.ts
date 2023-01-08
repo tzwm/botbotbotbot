@@ -1,5 +1,5 @@
 import { ChatGPTAPIBrowser, ChatResponse } from "chatgpt";
-import { requetChatGPT } from "./utils.js";
+import { requestChatGPT } from "./utils.js";
 
 interface Role {
   id: string;
@@ -54,7 +54,7 @@ export class Story {
       roleId,
       { nameAndBackground: nameAndBackground }
     );
-    const res = await requetChatGPT(this.chatgpt, prompt);
+    const res = await requestChatGPT(this.chatgpt, prompt);
 
     this.addNewRole(roleId, name, background);
     return this.addNewMessage(roleId, prompt, res);
@@ -63,7 +63,7 @@ export class Story {
   async joinRole(roleId: string, nameAndBackground: string): Promise<Message> {
     const { name, background } = this.splitJoinPrompt(nameAndBackground);
     const prompt = this.getPrompt("roleJoin", nameAndBackground, roleId);
-    const res = await requetChatGPT(
+    const res = await requestChatGPT(
       this.chatgpt,
       prompt,
       this.conversationId,
@@ -76,7 +76,7 @@ export class Story {
 
   async next(roleId: string, text: string): Promise<Message> {
     const prompt = this.getPrompt("next", text, roleId);
-    const res = await requetChatGPT(
+    const res = await requestChatGPT(
       this.chatgpt,
       prompt,
       this.conversationId,
@@ -88,7 +88,7 @@ export class Story {
 
   async end(roleId: string): Promise<Message> {
     const prompt = this.getPrompt("end", "", roleId);
-    const res = await requetChatGPT(
+    const res = await requestChatGPT(
       this.chatgpt,
       prompt,
       this.conversationId,

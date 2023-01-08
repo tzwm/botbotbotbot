@@ -2,7 +2,7 @@ import { ChatResponse, ChatGPTAPIBrowser } from "chatgpt";
 
 const MAX_TRY_COUNT = 2;
 
-export async function requetChatGPT(
+export async function requestChatGPT(
   chatgpt: ChatGPTAPIBrowser,
   prompt: string,
   conversationId?: string,
