@@ -6,7 +6,8 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "start": "NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node src/index.ts"
+    "start": "NODE_OPTIONS=\"--no-warnings --loader=ts-node/esm\" node src/index.ts",
+    "tmp": "node --inspect-brk --loader ts-node/esm src/index.ts"
   },
   "author": "",
   "license": "ISC",

@@ -1,5 +1,5 @@
 import { ChatGPTAPIBrowser, ChatResponse } from "chatgpt";
-import { requetChatGPT } from "./utils";
+import { requetChatGPT } from "./utils.js";
 
 interface Role {
   id: string;
@@ -35,10 +35,10 @@ const PROMPTS_PREFIX = {
 
 export class Story {
   chatgpt: ChatGPTAPIBrowser;
-  conversationId: string;
-  lastMessageId: string;
-  roles: Map<string, Role>; //roleId => Role
-  messages: Array<Message>;
+  conversationId!: string;
+  lastMessageId!: string;
+  roles!: Map<string, Role>; //roleId => Role
+  messages!: Array<Message>;
 
   constructor(chatgpt: ChatGPTAPIBrowser) {
     this.chatgpt = chatgpt;
@@ -102,7 +102,11 @@ export class Story {
   }
 
   private getPrompt(prefix: PREFIX_TYPE, text: string, roleId: string, opts?: any): string {
-    const role = this.roles[roleId];
+    const role = this.roles.get(roleId);
+    if (role == undefined) {
+      throw new StoryError("missing Role for getPrompt");
+    }
+
     let prompt = PROMPTS_PREFIX[prefix];
 
     if (prefix == "start") {
@@ -142,7 +146,7 @@ export class Story {
       name,
       background,
     }
-    this.roles[roleId] = role;
+    this.roles.set(roleId, role);
 
     return role;
   }

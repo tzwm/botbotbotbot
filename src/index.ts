@@ -1,5 +1,5 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { Story } from "./story";
+import { Story } from "./story.js";
 
 async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
   const chatgpt = new ChatGPTAPIBrowser({
@@ -14,4 +14,3 @@ async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
 
 const chatgpt = await initChatGPT();
 const story = new Story(chatgpt);
-debugger
