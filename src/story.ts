@@ -35,18 +35,25 @@ const PROMPTS_PREFIX = {
 
 export class Story {
   chatgpt: ChatGPTAPIBrowser;
+  roles: Map<string, Role>; //roleId => Role
+  messages: Array<Message>;
   conversationId!: string;
   lastMessageId!: string;
-  roles!: Map<string, Role>; //roleId => Role
-  messages!: Array<Message>;
 
   constructor(chatgpt: ChatGPTAPIBrowser) {
     this.chatgpt = chatgpt;
+    this.roles = new Map();
+    this.messages = new Array();
   };
 
   async start(opening: string, roleId: string, nameAndBackground: string): Promise<Message> {
     const { name, background } = this.splitJoinPrompt(nameAndBackground);
-    const prompt = this.getPrompt("start", opening, roleId);
+    const prompt = this.getPrompt(
+      "start",
+      opening,
+      roleId,
+      { nameAndBackground: nameAndBackground }
+    );
     const res = await requetChatGPT(this.chatgpt, prompt);
 
     this.addNewRole(roleId, name, background);
@@ -80,7 +87,7 @@ export class Story {
   }
 
   async end(roleId: string): Promise<Message> {
-    const prompt = this.getPrompt("next", "", roleId);
+    const prompt = this.getPrompt("end", "", roleId);
     const res = await requetChatGPT(
       this.chatgpt,
       prompt,
@@ -92,7 +99,7 @@ export class Story {
   }
 
   private splitJoinPrompt(prompt: string): { name: string, background: string } {
-    const rets = prompt.split(/,|，/, 1);
+    const rets = prompt.split(/[,，\s]\s*/, 2);
     if (rets.length !== 2 || rets[0].length > 10) {
       console.error("story.error.splitJoinPrompt", prompt);
       throw new StoryError("wrong text for joinRole");
@@ -101,25 +108,34 @@ export class Story {
     return {name: rets[0], background: rets[1]};
   }
 
-  private getPrompt(prefix: PREFIX_TYPE, text: string, roleId: string, opts?: any): string {
-    const role = this.roles.get(roleId);
-    if (role == undefined) {
-      throw new StoryError("missing Role for getPrompt");
-    }
-
+  private getPrompt(prefix: PREFIX_TYPE, text: string, roleId: string, opts?: { nameAndBackground?: string }): string {
     let prompt = PROMPTS_PREFIX[prefix];
 
     if (prefix == "start") {
+      if (!opts) {
+        throw new StoryError("missing opts for getPrompt");
+      }
+
       prompt += text +
         "\n" +
         PROMPTS_PREFIX["roleJoin"] +
-        opts.nameAndBackground.replace(/我/, role.name);
+        opts.nameAndBackground;
+
+      return prompt;
     }
-    if (prefix == "roleJoin") {
-      prompt += text.replace(/我/, role.name);
+
+    const role = this.roles.get(roleId);
+    if (role == undefined) {
+      //throw new StoryError("missing Role for getPrompt");
     }
-    if (prefix == "next") {
-      prompt += text.replace(/我/, role.name);
+
+    if (prefix == "roleJoin" || prefix == "next") {
+      //TODO: role must be exist
+      if (role) {
+        prompt += text.replace(/我/, role.name);
+      } else {
+        prompt += text;
+      }
     }
 
     return prompt;
