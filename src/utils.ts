@@ -14,14 +14,17 @@ export async function requestChatGPT(
     tryCount += 1;
 
     try {
-      console.log("chatgpt.sendMessage", prompt, {
-        conversationId,
-        parentMessageId,
-      });
+      console.log("chatgpt.sendMessage",
+                  `retried: ${tryCount - 1}`,
+                  prompt, {
+                    conversationId,
+                    parentMessageId,
+                  });
 
       const res = await chatgpt.sendMessage(prompt, {
         conversationId,
         parentMessageId,
+        timeoutMs: 2 * 60 * 1000,
       });
 
       console.log("chatgpt.response", res);
@@ -31,6 +34,11 @@ export async function requestChatGPT(
       }
     } catch (err: any) {
       console.error("chatgpt.error", prompt, err);
+
+      if (!await chatgpt.getIsAuthenticated()) {
+        chatgpt.refreshSession();
+      }
+
 
       if (tryCount > MAX_TRY_COUNT) {
         throw err;
