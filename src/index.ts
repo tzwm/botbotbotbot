@@ -1,6 +1,6 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { Story } from "./story.js";
-import { Cli } from "./cli.js";
+//import { Cli } from "./cli.js";
+import { WechatBot } from "./wechat-bot.js";
 
 async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
   const chatgpt = new ChatGPTAPIBrowser({
@@ -8,12 +8,13 @@ async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
     password: process.env.OPENAI_PASSWORD || "",
     proxyServer: process.env.HTTP_PROXY,
   });
-  await chatgpt.initSession();
+  chatgpt.initSession();
 
   return chatgpt;
 }
 
 const chatgpt = await initChatGPT();
-const story = new Story(chatgpt);
 
-await new Cli(chatgpt, story).run();
+//await new Cli(chatgpt, story).run();
+
+new WechatBot(chatgpt).start();
