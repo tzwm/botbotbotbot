@@ -80,18 +80,28 @@ export class WechatBot {
     const spaceId = room ? room.id : talker.id;
     const conversationKey: ConversationKeyType = `${roomOrPrivate}_${spaceId}`;
     let conversation = this.conversions.get(conversationKey);
+    let senderName;
+    if (room) {
+      senderName = await room.alias(talker);
+    }
+    if (!senderName) {
+      senderName = talker.name();
+    }
     const env: types.Env = {
       chatgpt: this.chatgpt,
       senderId: talker.id,
+      senderName: senderName,
     };
 
     // == high priority commands ==
     if (text.startsWith("/help")) {
-      let res = `/help - 帮助
+      let res = `==== 全局命令 ====
+/help - 帮助
 /clear - 清除对话
-/start #{mode} - mode: chat | story`;
+/start #{mode} - mode: chat | story\n`;
       if (conversation) {
-        res += `\nCurrent Conversation: ${conversation.constructor.name}`;
+        res += `==== 当前模式 ${conversation.constructor.name}：已进行 ${conversation.messages.length} 轮对话 ====\n` +
+          `${conversation.help()}`;
       }
 
       msg.say(res);
@@ -106,6 +116,7 @@ export class WechatBot {
 
     // conversation's commands
     if (conversation) {
+      msg.say("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
       const res = await conversation.onMessage(text, env);
       msg.say(res.response);
       return;
@@ -132,6 +143,7 @@ export class WechatBot {
       conversation = new Chat();
       this.conversions.set(conversationKey, conversation);
     }
+    msg.say("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
     const res = await conversation.onMessage(text, env);
     msg.say(res.response);
     return;

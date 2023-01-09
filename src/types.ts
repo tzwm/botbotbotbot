@@ -4,6 +4,7 @@ import { requestChatGPT } from "./utils.js";
 export interface Env {
   chatgpt: ChatGPTAPIBrowser;
   senderId: string;
+  senderName: string;
 }
 
 export interface Message {
@@ -25,6 +26,7 @@ export abstract class Conversation {
   messages = new Array<Message>();
 
   abstract onMessage(text: string, env: Env): Promise<Message>;
+  abstract help(): string;
 
   protected async send(prompt: string, env: Env): Promise<Message> {
     prompt = prompt.trim();
