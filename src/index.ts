@@ -8,7 +8,7 @@ async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
     password: process.env.OPENAI_PASSWORD || "",
     proxyServer: process.env.HTTP_PROXY,
   });
-  chatgpt.initSession();
+  await chatgpt.initSession();
 
   return chatgpt;
 }

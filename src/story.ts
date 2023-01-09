@@ -1,5 +1,10 @@
 import { ChatGPTAPIBrowser, ChatResponse } from "chatgpt";
-import { requestChatGPT } from "./utils.js";
+import { requestChatGPT, removeCmdPrefix } from "./utils.js";
+import {
+  Conversation,
+  Env,
+  Message,
+} from "./types.js";
 
 interface Role {
   id: string;
@@ -7,16 +12,7 @@ interface Role {
   background: string;
 };
 
-interface Message {
-  id: string;
-  prompt: string;
-  body: string;
-  roleId: string;
-  conversationId: string;
-  parentMessageId?: string;
-};
-
-type PREFIX_TYPE = "start" | "next" | "end" | "roleJoin";
+type CmdType = "start" | "next" | "end" | "join";
 
 class StoryError extends Error {};
 
@@ -29,73 +25,78 @@ const PROMPTS_PREFIX = {
 开头是：
 `,
   next: "继续，注意上下文联系。一次只写二到四句话，描述大概 5 分钟内发生的事情。尽量兼顾到大部分角色。要仔细描述各个人物的心情和周边环境，注意人物性格和特点。故事要非常有戏剧性，以反转和搞笑为主。",
-  end: "给每个人物写一个充满神奇而惊喜的结局。",
-  roleJoin: "加入新的角色：",
+  end: "概述整个故事，并给每个人物写一个充满神奇而惊喜的结局。",
+  join: "加入新的角色：",
 };
 
-export class Story {
-  chatgpt: ChatGPTAPIBrowser;
-  roles: Map<string, Role>; //roleId => Role
-  messages: Array<Message>;
-  conversationId!: string;
-  lastMessageId!: string;
+const PROMPTS_SUFFIX = {
+  start: "先记住这个开头，不用继续续写故事。",
+  next: "",
+  end: "",
+  join: "继续，注意上下文联系。一次只写二到四句话，描述大概 5 分钟内发生的事情。尽量兼顾到大部分角色。要仔细描述各个人物的心情和周边环境，注意人物性格和特点。故事要非常有戏剧性，以反转和搞笑为主。",
+};
 
-  constructor(chatgpt: ChatGPTAPIBrowser) {
-    this.chatgpt = chatgpt;
-    this.roles = new Map();
-    this.messages = new Array();
-  };
+export class Story extends Conversation {
+  roles = new Map<string, Role>(); //roleId => Role
 
-  async start(opening: string, roleId: string, nameAndBackground: string): Promise<Message> {
-    const { name, background } = this.splitJoinPrompt(nameAndBackground);
+  async onMessage(text: string, env: Env): Promise<Message> {
+    if (text.startsWith("/start")) {
+      return await this.start(removeCmdPrefix(text), env);
+    }
+    if (text.startsWith("/join")) {
+      return await this.join(removeCmdPrefix(text), env);
+    }
+
+    const role = this.roles.get(env.senderId);
+    if (!role) {
+      return {
+        id: "",
+        prompt: text,
+        response: "还没有加入，请先 /join 加入",
+        senderId: env.senderId,
+        conversationId: this.conversationId || "",
+      };
+    }
+
+    if (text.startsWith("/next")) {
+      return await this.next(removeCmdPrefix(text), env);
+    }
+    if (text.startsWith("/end")) {
+      return await this.end(env);
+    }
+
+    return await this.next(text, env);
+  }
+
+  private async start(opening: string, env: Env): Promise<Message> {
     const prompt = this.getPrompt(
       "start",
       opening,
-      roleId,
-      { nameAndBackground: nameAndBackground }
+      env.senderId,
     );
-    const res = await requestChatGPT(this.chatgpt, prompt);
 
-    this.addNewRole(roleId, name, background);
-    return this.addNewMessage(roleId, prompt, res);
+    return await this.send(prompt, env);
   }
 
-  async joinRole(roleId: string, nameAndBackground: string): Promise<Message> {
+  async join(nameAndBackground: string, env: Env): Promise<Message> {
     const { name, background } = this.splitJoinPrompt(nameAndBackground);
-    const prompt = this.getPrompt("roleJoin", nameAndBackground, roleId);
-    const res = await requestChatGPT(
-      this.chatgpt,
-      prompt,
-      this.conversationId,
-      this.lastMessageId
-    );
+    const prompt = this.getPrompt("join", nameAndBackground, env.senderId);
+    const res = await this.send(prompt, env);
+    this.addNewRole(env.senderId, name, background);
 
-    this.addNewRole(roleId, name, background);
-    return this.addNewMessage(roleId, prompt, res);
+    return res;
   }
 
-  async next(roleId: string, text: string): Promise<Message> {
-    const prompt = this.getPrompt("next", text, roleId);
-    const res = await requestChatGPT(
-      this.chatgpt,
-      prompt,
-      this.conversationId,
-      this.lastMessageId
-    );
+  async next(text: string, env: Env): Promise<Message> {
+    const prompt = this.getPrompt("next", text, env.senderId);
 
-    return this.addNewMessage(roleId, prompt, res);
+    return await this.send(prompt, env);
   }
 
-  async end(roleId: string): Promise<Message> {
-    const prompt = this.getPrompt("end", "", roleId);
-    const res = await requestChatGPT(
-      this.chatgpt,
-      prompt,
-      this.conversationId,
-      this.lastMessageId
-    );
+  async end(env: Env): Promise<Message> {
+    const prompt = this.getPrompt("end", "", env.senderId);
 
-    return this.addNewMessage(roleId, prompt, res);
+    return await this.send(prompt, env);
   }
 
   private splitJoinPrompt(prompt: string): { name: string, background: string } {
@@ -105,32 +106,23 @@ export class Story {
       throw new StoryError("wrong text for joinRole");
     }
 
-    return {name: rets[0], background: rets[1]};
+    return {
+      name: rets[0],
+      background: rets[1]
+    };
   }
 
-  private getPrompt(prefix: PREFIX_TYPE, text: string, roleId: string, opts?: { nameAndBackground?: string }): string {
-    let prompt = PROMPTS_PREFIX[prefix];
+  private getPrompt(cmd: CmdType, text: string, roleId: string): string {
+    let prompt = PROMPTS_PREFIX[cmd];
 
-    if (prefix == "start") {
-      if (!opts) {
-        throw new StoryError("missing opts for getPrompt");
-      }
-
-      prompt += text +
-        "\n" +
-        PROMPTS_PREFIX["roleJoin"] +
-        opts.nameAndBackground;
+    if (cmd == "start") {
+      prompt += text + "\n" + PROMPTS_SUFFIX[cmd];
 
       return prompt;
     }
 
     const role = this.roles.get(roleId);
-    if (role == undefined) {
-      //throw new StoryError("missing Role for getPrompt");
-    }
-
-    if (prefix == "roleJoin" || prefix == "next") {
-      //TODO: role must be exist
+    if (cmd == "join" || cmd == "next") {
       if (role) {
         prompt += text.replace(/我/, role.name);
       } else {
@@ -138,22 +130,7 @@ export class Story {
       }
     }
 
-    return prompt;
-  }
-
-  private addNewMessage(roleId: string, prompt: string, res: ChatResponse): Message {
-    this.conversationId = res.conversationId;
-    this.lastMessageId = res.messageId;
-    const msg = {
-      id: res.messageId,
-      prompt: prompt,
-      body: res.response,
-      roleId: roleId,
-      conversationId: res.conversationId,
-    };
-    this.messages.push(msg);
-
-    return msg
+    return prompt + "\n" + PROMPTS_SUFFIX[cmd];
   }
 
   private addNewRole(roleId: string, name: string, background: string): Role {

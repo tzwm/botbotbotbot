@@ -41,3 +41,7 @@ export async function requestChatGPT(
   console.error("chatgpt.error", prompt, "no response");
   throw new Error("chatgpt.error no response");
 }
+
+export function removeCmdPrefix(text: string): string {
+  return text.trim().replace(/^\/\w+\s+/, "");
+}

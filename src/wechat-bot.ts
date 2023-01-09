@@ -9,9 +9,10 @@ import {
   types as wechatyTypes,
   ScanStatus,
 } from "wechaty";
-//import { Story } from "./story.js";
+import { Story } from "./story.js";
 import { Chat } from "./chat.js";
 import * as types from "./types.js";
+import { removeCmdPrefix } from "./utils.js";
 
 
 //TODO: don't hard code this name
@@ -55,7 +56,7 @@ export class WechatBot {
   }
 
   private async onMessage(msg: Message) {
-    if (msg.age() > 2 * 60) {
+    if (msg.age() > 1 * 60) { // 1 minute
       return;
     }
     if (msg.type() != wechatyTypes.Message.Text) {
@@ -69,7 +70,7 @@ export class WechatBot {
         return;
       }
 
-      text = text.replace(/^@\w+ {1}/, "").trim(); // remove @bot from text
+      text = text.replace(/^@\w+\s+/, "").trim(); // remove @bot from text
     }
 
     console.log("wechaty message received:", msg);
@@ -78,6 +79,24 @@ export class WechatBot {
     const roomOrPrivate: RoomOrPrivateType = room ? "room" : "private";
     const spaceId = room ? room.id : talker.id;
     const conversationKey: ConversationKeyType = `${roomOrPrivate}_${spaceId}`;
+    let conversation = this.conversions.get(conversationKey);
+    const env: types.Env = {
+      chatgpt: this.chatgpt,
+      senderId: talker.id,
+    };
+
+    // == high priority commands ==
+    if (text.startsWith("/help")) {
+      let res = `/help - 帮助
+/clear - 清除对话
+/start #{mode} - mode: chat | story`;
+      if (conversation) {
+        res += `\nCurrent Conversation: ${conversation.constructor.name}`;
+      }
+
+      msg.say(res);
+      return;
+    }
 
     if (text.startsWith("/clear")) {
       this.conversions.delete(conversationKey);
@@ -85,15 +104,22 @@ export class WechatBot {
       return;
     }
 
+    // conversation's commands
+    if (conversation) {
+      const res = await conversation.onMessage(text, env);
+      msg.say(res.response);
+      return;
+    }
+
     if (text.startsWith("/start")) {
-      const convType = text.replace(/^\/start\s*/, "").trim().toLowerCase();
+      const convType = removeCmdPrefix(text).toLowerCase();
       if (convType == "chat") {
         this.conversions.set(conversationKey, new Chat());
         msg.say("开始 Chat 模式，日常对话");
         return;
       }
       if (convType == "story") {
-        //this.conversions.set(conversationKey, new Story());
+        this.conversions.set(conversationKey, new Story());
         msg.say("开始 Story 模式，一起续写故事吧");
         return;
       }
@@ -102,21 +128,6 @@ export class WechatBot {
       return;
     }
 
-    if (text.startsWith("/help")) {
-      msg.say(
-`/help - 帮助
-/clear - 清除对话
-/start #{mode} - mode: chat | story`
-      );
-      return;
-    }
-
-    const env: types.Env = {
-      chatgpt: this.chatgpt,
-      senderId: talker.id,
-    };
-
-    let conversation = this.conversions.get(conversationKey);
     if (!conversation) {
       conversation = new Chat();
       this.conversions.set(conversationKey, conversation);
