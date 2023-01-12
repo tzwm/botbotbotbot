@@ -57,24 +57,30 @@ export class WechatBot {
 
     const talker = msg.talker();
     const roomOrPrivate: types.RoomOrPrivateType = room ? "room" : "private";
-    const spaceId = room ? room.id : talker.id;
-    const sessionId : types.SessionIdType = `${roomOrPrivate}_${spaceId}`;
-    let senderName: string | undefined;
+    const id = room ? room.id : talker.id;
+    const sessionId: types.SessionIdType = `${roomOrPrivate}_${id}`;
+
+    let senderName = talker.name().trim();
     if (room) {
-      senderName = await room.alias(talker);
+      const roomAlias = await room.alias(talker);
+      if (roomAlias) {
+        senderName = roomAlias;
+      }
     }
     if (!senderName) {
-      senderName = talker.name();
+      senderName = "无名氏" + talker.id.slice(-4);
     }
+    console.log("==== talker name", talker.name());
+
     const env: types.Env = {
       senderId: talker.id,
       senderName: senderName,
+      replyFunc: msg.say.bind(msg),
     };
 
     await this.controller.onMessage(
       text,
       sessionId,
-      msg.say.bind(msg),
       env
     );
   }

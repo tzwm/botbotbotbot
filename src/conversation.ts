@@ -19,7 +19,7 @@ export abstract class Conversation {
   }
 
   protected async send(prompt: string, env: Env): Promise<Message> {
-    //await env.interface.say("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
+    env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
 
     prompt = prompt.trim();
     let msg: Message;

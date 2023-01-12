@@ -1,13 +1,7 @@
-import {
-  Message as WechatyMessage,
-  Room,
-  Contact
-} from "wechaty";
-
 export interface Env {
   senderId: string;
   senderName: string;
-  //replyFunc: (text: string) => void;
+  replyFunc: (text: string) => void;
 }
 
 export interface Message {

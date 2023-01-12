@@ -21,13 +21,13 @@ export class Cli {
       const env: types.Env = {
         senderId: os.hostname(),
         senderName: os.hostname(),
+        replyFunc: console.log,
       };
       const sessionId = os.hostname();
 
       await this.controller.onMessage(
         input,
         sessionId,
-        console.log,
         env,
       );
     }
