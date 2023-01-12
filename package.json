@@ -1,5 +1,5 @@
 {
-  "name": "mtrpg-chatgpt",
+  "name": "mtrpg-ai",
   "version": "0.1.0",
   "description": "Multiple Tabletop Role Playing Game based on ChatGPT",
   "type": "module",
@@ -8,6 +8,10 @@
     "build": "tsc",
     "start": "node --loader=ts-node/esm src/index.ts",
     "debug": "node inspect --loader ts-node/esm src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tzwm/MTRPG-AI"
   },
   "author": "",
   "license": "ISC",

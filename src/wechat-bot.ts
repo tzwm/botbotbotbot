@@ -70,7 +70,6 @@ export class WechatBot {
     if (!senderName) {
       senderName = "无名氏" + talker.id.slice(-4);
     }
-    console.log("==== talker name", talker.name());
 
     const env: types.Env = {
       senderId: talker.id,
