@@ -1,10 +1,15 @@
 import {
-  Conversation,
   Env,
   Message,
 } from "./types.js";
+import { Conversation } from "./conversation.js";
+import { ChatGPTAPIBrowser } from "chatgpt";
 
 export class Chat extends Conversation {
+  constructor(chatgpt: ChatGPTAPIBrowser) {
+    super(chatgpt);
+  }
+
   async onMessage(text: string, env: Env): Promise<Message> {
     return await this.send(text, env);
   }

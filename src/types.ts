@@ -1,10 +1,13 @@
-import { ChatGPTAPIBrowser } from "chatgpt";
-import { requestChatGPT } from "./utils.js";
+import {
+  Message as WechatyMessage,
+  Room,
+  Contact
+} from "wechaty";
 
 export interface Env {
-  chatgpt: ChatGPTAPIBrowser;
   senderId: string;
   senderName: string;
+  //replyFunc: (text: string) => void;
 }
 
 export interface Message {
@@ -18,37 +21,14 @@ export interface Message {
 
 export type ConversationType = "Chat" | "Story";
 
+// for wechat
+export type RoomOrPrivateType = "room" | "private";
+
+
+// wechat: RoomOrPrivateType_id
+// cli: fixed string
+export type SessionIdType = `${RoomOrPrivateType}_${string}` | string; // this type is just string
+
 export class ConversationError extends Error {};
 
-export abstract class Conversation {
-  conversationId?: string;
-  lastMessageId?: string;
-  messages = new Array<Message>();
-
-  abstract onMessage(text: string, env: Env): Promise<Message>;
-  abstract help(): string;
-
-  protected async send(prompt: string, env: Env): Promise<Message> {
-    prompt = prompt.trim();
-    const res = await requestChatGPT(
-      env.chatgpt,
-      prompt,
-      this.conversationId,
-      this.lastMessageId
-    );
-
-    const msg = {
-      id: res.messageId,
-      prompt: prompt,
-      response: res.response,
-      senderId: env.senderId,
-      conversationId: res.conversationId,
-      parentMessageId: this.lastMessageId,
-    };
-    this.messages.push(msg);
-    this.conversationId = res.conversationId;
-    this.lastMessageId = res.messageId;
-
-    return msg;
-  }
-}
+//export type SessionType = "Cli" | "Wechaty";

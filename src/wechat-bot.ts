@@ -1,4 +1,3 @@
-import { ChatGPTAPIBrowser } from "chatgpt";
 import qrcodeTerminal from "qrcode-terminal";
 import {
   Wechaty,
@@ -9,28 +8,16 @@ import {
   types as wechatyTypes,
   ScanStatus,
 } from "wechaty";
-import { Story } from "./story.js";
-import { Chat } from "./chat.js";
 import * as types from "./types.js";
-import { removeCmdPrefix } from "./utils.js";
+import { Controller } from "./controller.js";
 
-
-//TODO: don't hard code this name
-const masterUsername = "tzwm";
-
-type RoomOrPrivateType = "room" | "private";
-type ConversationKeyType = `${RoomOrPrivateType}_${string}`;
 
 export class WechatBot {
   bot: Wechaty;
-  chatgpt: ChatGPTAPIBrowser;
+  controller: Controller;
 
-  conversions: Map<ConversationKeyType, types.Conversation>;
-  //conversationsRoom: Map<string, Conversation>; // contactId => Conversation
-
-  constructor(chatgpt: ChatGPTAPIBrowser) {
-    this.chatgpt = chatgpt;
-    this.conversions = new Map();
+  constructor(controller: Controller) {
+    this.controller = controller;
 
     this.bot = WechatyBuilder.build({
       name: "mtrpg-wechat-bot",
@@ -48,15 +35,8 @@ export class WechatBot {
     .catch(e => log.error("StarterBot", e));
   }
 
-  async sendToMaster(text: string) {
-    const user = await this.bot.Contact.find({ name: masterUsername });
-    if (user) {
-      user.say(text);
-    }
-  }
-
   private async onMessage(msg: Message) {
-    if (msg.age() > 1 * 60) { // 1 minute
+    if (msg.age() > 30) { // 30 seconds
       return;
     }
     if (msg.type() != wechatyTypes.Message.Text) {
@@ -76,11 +56,10 @@ export class WechatBot {
     console.log("wechaty message received:", msg);
 
     const talker = msg.talker();
-    const roomOrPrivate: RoomOrPrivateType = room ? "room" : "private";
+    const roomOrPrivate: types.RoomOrPrivateType = room ? "room" : "private";
     const spaceId = room ? room.id : talker.id;
-    const conversationKey: ConversationKeyType = `${roomOrPrivate}_${spaceId}`;
-    let conversation = this.conversions.get(conversationKey);
-    let senderName;
+    const sessionId : types.SessionIdType = `${roomOrPrivate}_${spaceId}`;
+    let senderName: string | undefined;
     if (room) {
       senderName = await room.alias(talker);
     }
@@ -88,65 +67,16 @@ export class WechatBot {
       senderName = talker.name();
     }
     const env: types.Env = {
-      chatgpt: this.chatgpt,
       senderId: talker.id,
       senderName: senderName,
     };
 
-    // == high priority commands ==
-    if (text.startsWith("/help")) {
-      let res = `==== 全局命令 ====
-/help - 帮助
-/clear - 清除对话
-/start #{mode} - mode: chat | story\n`;
-      if (conversation) {
-        res += `==== 当前模式 ${conversation.constructor.name}：已进行 ${conversation.messages.length} 轮对话 ====\n` +
-          `${conversation.help()}`;
-      }
-
-      msg.say(res);
-      return;
-    }
-
-    if (text.startsWith("/clear")) {
-      this.conversions.delete(conversationKey);
-      msg.say("对话清除了，可以 /start 重新开始");
-      return;
-    }
-
-    // conversation's commands
-    if (conversation) {
-      msg.say("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
-      const res = await conversation.onMessage(text, env);
-      msg.say(res.response);
-      return;
-    }
-
-    if (text.startsWith("/start")) {
-      const convType = removeCmdPrefix(text).toLowerCase();
-      if (convType == "chat") {
-        this.conversions.set(conversationKey, new Chat());
-        msg.say("开始 Chat 模式，日常对话");
-        return;
-      }
-      if (convType == "story") {
-        this.conversions.set(conversationKey, new Story());
-        msg.say("开始 Story 模式，一起续写故事吧");
-        return;
-      }
-
-      msg.say(`没找到 ${convType} 这个模式`);
-      return;
-    }
-
-    if (!conversation) {
-      conversation = new Chat();
-      this.conversions.set(conversationKey, conversation);
-    }
-    msg.say("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
-    const res = await conversation.onMessage(text, env);
-    msg.say(res.response);
-    return;
+    await this.controller.onMessage(
+      text,
+      sessionId,
+      msg.say.bind(msg),
+      env
+    );
   }
 
   private onScan(qrcode: string, status: ScanStatus) {

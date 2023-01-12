@@ -1,6 +1,7 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-//import { Cli } from "./cli.js";
+import { Cli } from "./cli.js";
 import { WechatBot } from "./wechat-bot.js";
+import { Controller } from "./controller.js";
 
 async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
   const chatgpt = new ChatGPTAPIBrowser({
@@ -15,6 +16,9 @@ async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
 
 const chatgpt = await initChatGPT();
 
-//await new Cli(chatgpt, story).run();
+const controller = new Controller({
+  chatgpt: chatgpt,
+});
 
-new WechatBot(chatgpt).start();
+new WechatBot(controller).start();
+//await new Cli(controller).start();

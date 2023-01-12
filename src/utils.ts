@@ -35,8 +35,11 @@ export async function requestChatGPT(
     } catch (err: any) {
       console.error("chatgpt.error", prompt, err);
 
+      if (err.match(/error 429/)) { // too many requests
+        tryCount = MAX_TRY_COUNT + 1;
+      }
       if (!await chatgpt.getIsAuthenticated()) {
-        chatgpt.refreshSession();
+        await chatgpt.refreshSession();
       }
 
 
