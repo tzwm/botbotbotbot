@@ -2,8 +2,8 @@ import { ChatGPTAPIBrowser } from "chatgpt";
 import {
   Env,
   Message,
-} from "./types.js";
-import { requestChatGPT } from "./utils.js";
+} from "../types.js";
+import { requestChatGPT } from "../utils.js";
 
 export abstract class Conversation {
   service: ChatGPTAPIBrowser;

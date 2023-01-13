@@ -8,8 +8,8 @@ import {
   types as wechatyTypes,
   ScanStatus,
 } from "wechaty";
-import * as types from "./types.js";
-import { Controller } from "./controller.js";
+import * as types from "../types.js";
+import { Controller } from "../controller.js";
 
 
 export class WechatBot {

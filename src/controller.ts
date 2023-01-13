@@ -1,11 +1,11 @@
 import { Env } from "./types.js";
 import * as types from "./types.js";
-import { Conversation } from "./conversation.js";
+import { Conversation } from "./modes/conversation.js";
 import { ChatGPTAPIBrowser } from "chatgpt";
 import { removeCmdPrefix } from "./utils.js";
-import { Story } from "./story.js";
-import { Chat } from "./chat.js";
-import { RPG } from "./rpg.js";
+import { Story } from "./modes/story.js";
+import { Chat } from "./modes/chat.js";
+import { RPG } from "./modes/rpg.js";
 
 interface Services {
   chatgpt?: ChatGPTAPIBrowser;

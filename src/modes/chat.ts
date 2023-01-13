@@ -1,7 +1,7 @@
 import {
   Env,
   Message,
-} from "./types.js";
+} from "../types.js";
 import { Conversation } from "./conversation.js";
 import { ChatGPTAPIBrowser } from "chatgpt";
 

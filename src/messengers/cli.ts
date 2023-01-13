@@ -1,6 +1,6 @@
 import promptSync from "prompt-sync";
-import { Controller } from "./controller.js";
-import * as types from "./types.js";
+import { Controller } from "../controller.js";
+import * as types from "../types.js";
 import os from "os";
 
 

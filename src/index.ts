@@ -1,6 +1,6 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { Cli } from "./cli.js";
-import { WechatBot } from "./wechat-bot.js";
+import { Cli } from "./messengers/cli.js";
+import { WechatBot } from "./messengers/wechat-bot.js";
 import { Controller } from "./controller.js";
 
 async function initChatGPT(): Promise<ChatGPTAPIBrowser> {

@@ -1,9 +1,9 @@
-import { removeCmdPrefix } from "./utils.js";
+import { removeCmdPrefix } from "../utils.js";
 import { Conversation } from "./conversation.js";
 import {
   Env,
   Message,
-} from "./types.js";
+} from "../types.js";
 import fs from "fs";
 import YAML from "yaml";
 
@@ -13,11 +13,11 @@ interface Role {
   background: string;
 };
 
-type CmdType = "start" | "next" | "end" | "join" | "goal";
+type CmdType = "start" | "next" | "end" | "join";
 
-const TEMPLATE = "rpg_20230112";
+const TEMPLATE = "story_20230110";
 
-export class RPG extends Conversation {
+export class Story extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
 
   async onMessage(text: string, env: Env): Promise<Message> {
@@ -45,15 +45,12 @@ export class RPG extends Conversation {
     if (text.startsWith("/end")) {
       return await this.end(env);
     }
-    if (text.startsWith("/goal")) {
-      return await this.goal(env);
-    }
 
     return await this.next(text, env);
   }
 
   help(): string {
-    return `> RPG 模式：一起玩游戏吧。目前故事设定以搞笑为主。
+    return `> Story 模式：大家一起写故事。
 version: ${TEMPLATE}
 /start #{background_of_the_world}
     故事设定、背景资料等。
@@ -61,8 +58,6 @@ version: ${TEMPLATE}
 /join #{background_of_the_role}
     自己作为一个角色加入故事中，附带上角色介绍和出场。
     例子：/join 我是没有头发、爱吃奥利奥的产品经理魔法师。正走在大街上觅食想要找一碗面吃。
-/goal
-    给每个加入的角色设定一个目标。
 /next #{content}
     继续写故事，最好以第一人称。
     例子：/next 我看到一个不错的拉面店走了进去，没想到这是一家魔法拉面道具店。
@@ -81,7 +76,7 @@ version: ${TEMPLATE}
   }
 
   private async join(background: string, env: Env): Promise<Message> {
-    this.addNewRole(env.senderId, env.senderName, background, env);
+    this.addNewRole(env.senderId, env.senderName, background);
     const prompt = this.getPrompt("join", background, env.senderId);
     const res = await this.send(prompt, env);
 
@@ -89,31 +84,13 @@ version: ${TEMPLATE}
   }
 
   private async next(text: string, env: Env): Promise<Message> {
-    const roll = Math.random();
-    let prefix: string;
-    if (roll == 0) { // fail
-      env.replyFunc("Roll 点成功，继续……");
-      prefix = this.template["next"]["prefix_success"];
-    } else {
-      env.replyFunc("Roll 点失败，嘿嘿……");
-      prefix = this.template["next"]["prefix_fail"];
-    }
+    const prompt = this.getPrompt("next", text, env.senderId);
 
-    let prompt = this.getPrompt("next", prefix + text, env.senderId);
     return await this.send(prompt, env);
   }
 
   private async end(env: Env): Promise<Message> {
     const prompt = this.getPrompt("end", "", env.senderId);
-
-    return await this.send(prompt, env);
-  }
-
-  private async goal(env: Env): Promise<Message> {
-    const allNames = Array.from(this.roles.values()).map(
-      (r: Role) => { r["name"]; }
-    ).join("，");
-    const prompt = this.getPrompt("goal", allNames, env.senderId);
 
     return await this.send(prompt, env);
   }
@@ -125,7 +102,7 @@ version: ${TEMPLATE}
 
     const role = this.roles.get(roleId);
     if (role && (cmd == "join" || cmd == "next")) {
-      prompt = text.replace(/我/, role.name + " ");
+      prompt = text.replace(/我/, role.name);
     } else {
       prompt = text;
     }
@@ -133,13 +110,8 @@ version: ${TEMPLATE}
     return [prefix, prompt, suffix].join("\n");
   }
 
-  private addNewRole(roleId: string, name: string, background: string, env: Env): Role {
-    let role = this.roles.get(roleId);
-    if (role) {
-      env.replyFunc(`你已经加入过了，你是 ${role.name}：${role.background}`);
-      return role;
-    }
-    role = {
+  private addNewRole(roleId: string, name: string, background: string): Role {
+    const role = {
       id: roleId,
       name,
       background,
