@@ -6,6 +6,7 @@ import { removeCmdPrefix } from "./utils.js";
 import { Story } from "./modes/story.js";
 import { Chat } from "./modes/chat.js";
 import { RPG } from "./modes/rpg.js";
+import { Translator } from "./modes/translator.js";
 
 interface Services {
   chatgpt?: ChatGPTAPIBrowser;
@@ -58,6 +59,11 @@ export class Controller {
           this.sessions.set(sessionId, new RPG(this.services["chatgpt"]));
           return replyFunc("开始 RPG 模式，一起玩游戏吧");
         }
+        //TODO: improve this commands list
+        if (convType == "translator" || convType == "tran") {
+          this.sessions.set(sessionId, new Translator(this.services["chatgpt"]));
+          return replyFunc("开始 Translator 模式，一起玩游戏吧");
+        }
       }
       return replyFunc(`没找到 ${convType} 这个模式`);
     }
@@ -69,7 +75,7 @@ export class Controller {
     let res = `==== 全局命令 ====
 /help - 帮助
 /clear - 清除对话
-/start #{mode} - mode: chat | story | rpg\n`;
+/start #{mode} - mode: chat | story | rpg | translator \n`;
     if (conversation) {
       res += `==== 当前模式 ${conversation.constructor.name}：已进行 ${conversation.messages.length} 轮对话 ====\n` +
         `${conversation.help()}`;
