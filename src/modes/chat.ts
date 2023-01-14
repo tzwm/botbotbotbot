@@ -10,8 +10,9 @@ export class Chat extends Conversation {
     super(chatgpt);
   }
 
-  async onMessage(text: string, env: Env): Promise<Message> {
-    return await this.send(text, env);
+  async onMessage(text: string, env: Env): Promise<void> {
+    const msg = await this.send(text, env);
+    env.replyFunc(msg.response);
   }
 
   help(): string {

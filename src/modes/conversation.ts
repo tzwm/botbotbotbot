@@ -1,20 +1,24 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
+import { DreamilyAPI } from "dreamily-api";
 import {
   Env,
   Message,
 } from "../types.js";
 import { requestChatGPT } from "../utils.js";
 
+type ServiceType = ChatGPTAPIBrowser | DreamilyAPI;
+
 export abstract class Conversation {
-  service: ChatGPTAPIBrowser;
+  service: ServiceType;
   conversationId?: string;
   lastMessageId?: string;
+  universeId?: string;
   messages = new Array<Message>();
 
-  abstract onMessage(text: string, env: Env): Promise<Message>;
+  abstract onMessage(text: string, env: Env): Promise<void>;
   abstract help(): string;
 
-  constructor(service: ChatGPTAPIBrowser) {
+  constructor(service: ServiceType) {
     this.service = service;
   }
 
@@ -23,8 +27,6 @@ export abstract class Conversation {
 
     prompt = prompt.trim();
     let msg: Message;
-    let conversationId: string;
-    let messageId: string;
 
     if (this.service instanceof ChatGPTAPIBrowser) {
       const res = await requestChatGPT(
@@ -42,15 +44,29 @@ export abstract class Conversation {
         conversationId: res.conversationId,
         parentMessageId: this.lastMessageId,
       };
-      conversationId = res.conversationId;
-      messageId = res.messageId;
+      this.conversationId = res.conversationId;
+      this.lastMessageId = res.messageId;
     } else {
-      throw new Error("not found this service type");
+      if (this.service instanceof DreamilyAPI) {
+        const res = await this.service.continue(
+          prompt,
+          this.universeId || "",
+        );
+
+        msg = {
+          id: "", //FIXME: maybe use UUID?
+          prompt: prompt,
+          response: res,
+          senderId: env.senderId,
+          conversationId: "", //FIXME: maybe use UUID?
+          universeId: this.universeId,
+        }
+      } else {
+        throw new Error("not found this service type");
+      }
     }
 
     this.messages.push(msg);
-    this.conversationId = conversationId;
-    this.lastMessageId = messageId;
 
     return msg;
   }

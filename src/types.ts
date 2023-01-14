@@ -11,6 +11,7 @@ export interface Message {
   senderId: string;
   conversationId: string;
   parentMessageId?: string;
+  universeId?: string;
 };
 
 export type ConversationType = "Chat" | "Story";

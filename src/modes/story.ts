@@ -20,33 +20,32 @@ const TEMPLATE = "story_20230110";
 export class Story extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
 
-  async onMessage(text: string, env: Env): Promise<Message> {
+  async onMessage(text: string, env: Env): Promise<void> {
+    let msg: Message | undefined;
     if (text.startsWith("/start")) {
-      return await this.start(removeCmdPrefix(text), env);
+      msg = await this.start(removeCmdPrefix(text), env);
     }
     if (text.startsWith("/join")) {
-      return await this.join(removeCmdPrefix(text), env);
+      msg = await this.join(removeCmdPrefix(text), env);
     }
 
     const role = this.roles.get(env.senderId);
     if (!role) {
-      return {
-        id: "",
-        prompt: text,
-        response: "还没有加入，请先 /join 加入",
-        senderId: env.senderId,
-        conversationId: this.conversationId || "",
-      };
+      env.replyFunc("还没有加入，请先 /join 加入");
+      return;
     }
 
-    if (text.startsWith("/next")) {
-      return await this.next(removeCmdPrefix(text), env);
-    }
     if (text.startsWith("/end")) {
-      return await this.end(env);
+      msg = await this.end(env);
+    }
+    if (text.startsWith("/next")) {
+      msg = await this.next(removeCmdPrefix(text), env);
+    }
+    if (msg === undefined) {
+      msg = await this.next(text, env);
     }
 
-    return await this.next(text, env);
+    env.replyFunc(msg.response);
   }
 
   help(): string {

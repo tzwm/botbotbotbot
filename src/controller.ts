@@ -40,8 +40,7 @@ export class Controller {
 
     // conversation's commands
     if (conversation) {
-      const res = await conversation.onMessage(message, env);
-      return replyFunc(res.response);
+      return await conversation.onMessage(message, env);
     }
 
     if (message.startsWith("/start")) {
