@@ -1,5 +1,5 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { DreamilyAPI } from "dreamily-api";
+import { DreamilyAPI } from "../dreamily-api.js";
 import {
   Env,
   Message,

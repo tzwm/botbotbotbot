@@ -6,10 +6,13 @@ import { removeCmdPrefix } from "./utils.js";
 import { Story } from "./modes/story.js";
 import { Chat } from "./modes/chat.js";
 import { RPG } from "./modes/rpg.js";
+import { StoryDreamily } from "./modes/story_dreamily.js";
 import { Translator } from "./modes/translator.js";
+import { DreamilyAPI } from "./dreamily-api.js";
 
 interface Services {
   chatgpt?: ChatGPTAPIBrowser;
+  dreamily?: DreamilyAPI;
 };
 
 export class Controller {
@@ -45,6 +48,7 @@ export class Controller {
 
     if (message.startsWith("/start")) {
       const convType = removeCmdPrefix(message).toLowerCase();
+      //TODO: improve it
       if (this.services["chatgpt"]) {
         if (convType == "chat") {
           this.sessions.set(sessionId, new Chat(this.services["chatgpt"]));
@@ -62,6 +66,12 @@ export class Controller {
         if (convType == "translator" || convType == "tran") {
           this.sessions.set(sessionId, new Translator(this.services["chatgpt"]));
           return replyFunc("开始 Translator 模式，一起玩游戏吧");
+        }
+      }
+      if (this.services["dreamily"]) {
+        if (convType == "dstory") {
+          this.sessions.set(sessionId, new StoryDreamily(this.services["dreamily"]));
+          return replyFunc("开始小梦 Story 模式，一起和小梦续写故事吧");
         }
       }
       return replyFunc(`没找到 ${convType} 这个模式`);
