@@ -8,7 +8,7 @@ import { Chat } from "./modes/chat.js";
 import { RPG } from "./modes/rpg.js";
 import { StoryDreamily } from "./modes/story_dreamily.js";
 import { Translator } from "./modes/translator.js";
-import { DreamilyAPI } from "./dreamily-api.js";
+import { DreamilyAPI } from "dreamily-api";
 
 interface Services {
   chatgpt?: ChatGPTAPIBrowser;

@@ -1,5 +1,5 @@
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { DreamilyAPI } from "./dreamily-api.js";
+import { DreamilyAPI } from "dreamily-api";
 import { WechatBot } from "./messengers/wechat-bot.js";
 import { Controller } from "./controller.js";
 

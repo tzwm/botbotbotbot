@@ -1,5 +1,5 @@
 import { Conversation } from "./conversation.js";
-import { DreamilyAPI } from "../dreamily-api.js";
+import { DreamilyAPI } from "dreamily-api";
 import { Env } from "../types.js";
 import { removeCmdPrefix } from "../utils.js";
 
