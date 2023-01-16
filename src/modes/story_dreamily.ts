@@ -19,7 +19,10 @@ export class StoryDreamily extends Conversation {
       return;
     }
 
-    const msg = await this.send(text, env);
+    const previous = this.messages.map(msg => {
+      return [msg.prompt, msg.response].join("");
+    }).join("");
+    const msg = await this.send([previous, text].join(""), env);
     env.replyFunc(msg.response);
   }
 

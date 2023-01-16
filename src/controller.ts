@@ -84,7 +84,7 @@ export class Controller {
     let res = `==== 全局命令 ====
 /help - 帮助
 /clear - 清除对话
-/start #{mode} - mode: chat | story | rpg | translator \n`;
+/start #{mode} - mode: chat | story | rpg | translator | dstory \n`;
     if (conversation) {
       res += `==== 当前模式 ${conversation.constructor.name}：已进行 ${conversation.messages.length} 轮对话 ====\n` +
         `${conversation.help()}`;

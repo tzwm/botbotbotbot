@@ -23,12 +23,12 @@ export abstract class Conversation {
   }
 
   protected async send(prompt: string, env: Env): Promise<Message> {
-    env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
-
     prompt = prompt.trim();
     let msg: Message;
 
     if (this.service instanceof ChatGPTAPIBrowser) {
+      env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
+
       const res = await requestChatGPT(
         this.service,
         prompt,
