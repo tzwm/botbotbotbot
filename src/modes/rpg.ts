@@ -30,7 +30,7 @@ export class RPG extends Conversation {
     }
 
     const role = this.roles.get(env.senderId);
-    if (!role) {
+    if (!role && !msg) {
       env.replyFunc("还没有加入，请先 /join 加入");
       return
     }

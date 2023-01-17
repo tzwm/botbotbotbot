@@ -42,6 +42,9 @@ export class WechatBot {
     if (msg.type() != wechatyTypes.Message.Text) {
       return;
     }
+    if (msg.self()) {
+      return;
+    }
 
     const room = msg.room();
     let text = msg.text().trim();
