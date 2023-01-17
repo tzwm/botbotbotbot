@@ -111,7 +111,7 @@ version: ${TEMPLATE}
 
   private async goal(env: Env): Promise<Message> {
     const allNames = Array.from(this.roles.values()).map(
-      (r: Role) => { r["name"]; }
+      (r: Role) => { return r["name"]; }
     ).join("，");
     const prompt = this.getPrompt("goal", allNames, env.senderId);
 
