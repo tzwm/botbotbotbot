@@ -38,8 +38,11 @@ export class StoryDreamily extends Conversation {
   }
 
   private fullStory(): string {
-    return this.messages.map(msg => {
-      return [msg.prompt, msg.response].join("");
-    }).join("");
+    if (this.messages.length == 0) {
+      return "";
+    }
+
+    const lastMsg = this.messages[this.messages.length - 1];
+    return [lastMsg.prompt, lastMsg.response].join("");
   }
 }
