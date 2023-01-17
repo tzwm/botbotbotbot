@@ -1,3 +1,7 @@
+## Architecture
+
+![](https://files.tzwm.me/images/2023/01/20230117202155.webp)
+
 ## TODO
 
 - [ ] Add README.md and other documents
