@@ -1,11 +1,10 @@
 import {
   Env,
-  Message,
 } from "../types.js";
 import { Conversation } from "./conversation.js";
 import { ChatGPTAPIBrowser } from "chatgpt";
 
-const PREFIX = "帮我翻译下面这段，如果是英文翻译成中文，中文则翻译成英文。";
+const PREFIX = "作为翻译器，帮我翻译下面这段，如果是英文翻译成中文，中文则翻译成英文。";
 
 export class Translator extends Conversation {
   constructor(chatgpt: ChatGPTAPIBrowser) {
@@ -13,7 +12,7 @@ export class Translator extends Conversation {
   }
 
   async onMessage(text: string, env: Env): Promise<void> {
-    const prompt = PREFIX + text;
+    const prompt = [PREFIX, text].join("\n");
     const msg = await this.send(prompt, env);
     env.replyFunc(msg.response);
   }

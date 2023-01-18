@@ -65,7 +65,7 @@ export class Controller {
         //TODO: improve this commands list
         if (convType == "translator" || convType == "tran") {
           this.sessions.set(sessionId, new Translator(this.services["chatgpt"]));
-          return replyFunc("开始 Translator 模式，一起玩游戏吧");
+          return replyFunc("开始 Translator 模式，中英文互翻");
         }
       }
       if (this.services["dreamily"]) {

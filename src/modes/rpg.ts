@@ -24,9 +24,11 @@ export class RPG extends Conversation {
     let msg: Message | undefined;
     if (text.startsWith("/start")) {
       msg = await this.start(removeCmdPrefix(text), env);
+      return env.replyFunc(msg.response);
     }
     if (text.startsWith("/join")) {
       msg = await this.join(removeCmdPrefix(text), env);
+      return env.replyFunc(msg.response);
     }
 
     const role = this.roles.get(env.senderId);
