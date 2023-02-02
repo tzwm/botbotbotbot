@@ -1,4 +1,7 @@
-import { replyNotFoundCmd } from "../utils.js";
+import {
+  replyNotFoundCmd,
+  requestStableDiffusion,
+} from "../utils.js";
 import { Conversation } from "./conversation.js";
 import {
   Env,
@@ -6,6 +9,7 @@ import {
 } from "../types.js";
 import fs from "fs";
 import YAML from "yaml";
+import { FileBox } from "file-box";
 
 interface Role {
   id: string;
@@ -13,7 +17,7 @@ interface Role {
   background: string;
 };
 
-type CmdType = "open" | "next" | "end" | "join" | "goal" | "image_prompt" | "previous" | "query";
+type CmdType = "open" | "next" | "end" | "join" | "goal" | "image_prompt" | "previous" | "query" | "image";
 
 export class RPG extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
@@ -38,6 +42,10 @@ export class RPG extends Conversation {
       case "query":
         msg = await this.query(content, env);
         break;
+      case "image":
+        //TODO: improve it
+        await this.image(env);
+        return;
     }
 
     const role = this.roles.get(env.senderId);
@@ -151,6 +159,20 @@ version: ${this.config.template}
     const prompt = this.getPrompt("query", content, env.senderId);
 
     return await this.send(prompt, env);
+  }
+
+  private async image(env: Env): Promise<void> {
+    const promptMsg = await this.imagePrompt(env);
+    env.replyFunc(promptMsg.response);
+
+    const imgUrl = await requestStableDiffusion(promptMsg.response);
+
+    if (typeof imgUrl === "string") {
+      console.log("RPG.image", imgUrl);
+      env.replyFunc(FileBox.fromUrl(imgUrl));
+    } else {
+      env.replyFunc("生成失败");
+    }
   }
 
   private getPrompt(cmd: CmdType, text: string, roleId: string): string {

@@ -1,6 +1,28 @@
 import { ChatMessage, ChatGPTAPI } from "chatgpt";
+import { predict } from "replicate-api";
 
 const MAX_TRY_COUNT = 2;
+
+export async function requestStableDiffusion(prompt: string): Promise<string | null> {
+  const prediction = await predict({
+    model: "stability-ai/stable-diffusion", // The model name
+    input: {
+      prompt: prompt,
+      width: 768,
+      height: 576,
+    }, // The model specific input
+    token: process.env.REPLICATE_TOKEN || "", // You need a token from replicate.com
+    poll: true, // Wait for the model to finish
+  });
+  const ret = prediction.output[0];
+
+  if (typeof ret === "string") {
+    return ret;
+  } else {
+    console.error("replicate-api.error", prediction);
+    return null;
+  }
+}
 
 export async function requestChatGPT(
   chatgpt: ChatGPTAPI,

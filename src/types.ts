@@ -1,7 +1,7 @@
 export interface Env {
   senderId: string;
   senderName: string;
-  replyFunc: (text: string) => void;
+  replyFunc: Function;
   message: string;
 }
 

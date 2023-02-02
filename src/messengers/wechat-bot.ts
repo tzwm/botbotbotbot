@@ -8,6 +8,7 @@ import {
   types as wechatyTypes,
   ScanStatus,
 } from "wechaty";
+import { FileBox } from 'file-box';
 import * as types from "../types.js";
 import { Controller } from "../controller.js";
 
@@ -48,6 +49,12 @@ export class WechatBot {
 
     const room = msg.room();
     let text = msg.text().trim();
+
+    if (text == "test") {
+      const img = FileBox.fromUrl("https://replicate.delivery/pbxt/f4nlztv3uz1iFC4AEf2wBYQGTezdVeysvtZUtwfsvZOJDN6AC/out-0.png");
+      msg.say(img);
+    }
+
     if (room) {
       if (!await msg.mentionSelf()) {
         return;

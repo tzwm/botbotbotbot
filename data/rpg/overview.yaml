@@ -23,5 +23,7 @@ commands:
     description: 前情提要。
   - command: query
     description: 基于当前故事提问。
+  - command: image
+    description: 基于当前故事场景生成一张图片。
 default_command: next
 template: 20230202

@@ -31,7 +31,7 @@ actions:
       - closeup portrait shot of a large strong female biomechanic woman in a scenic scifi environment, intricate, elegant, highly detailed, centered, digital painting, artstation, concept art, smooth, sharp focus, warframe, illustration, thomas kinkade, tomasz alen kopera, peter mohrbacher, donato giancola, leyendecker, boris vallejo
       - ultra realistic illustration of steve urkle as the hulk, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
 
-      Give me a detailed prompt to describe this story we talked about before. To use characteristics instead of names to describe the people in the story.
+      I want you to write me a detailed English prompt exactly about this story we talked about before. To use characteristics instead of names to describe the people in the story. Follow the structure of the example prompts. This means a very short description of the scene, followed by modifiers divided by commas to alter the mood, style, lighting, and more.
   previous:
     prefix: 简单概述一下前面的故事。
   query:
