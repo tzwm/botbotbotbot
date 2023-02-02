@@ -15,9 +15,13 @@ commands:
     example: /next 我看到一个不错的拉面店走了进去，没想到这是一家魔法拉面道具店。
   - command: goal
     description: 给每个加入的角色设定一个目标。
-  - command: image_prompt
-    description: 基于当前故事场景生成 Stable Diffusion prompt。
   - command: end
     description: 结束这个故事。
+  - command: image_prompt
+    description: 基于当前故事场景生成 Stable Diffusion prompt。
+  - command: previous
+    description: 前情提要。
+  - command: query
+    description: 基于当前故事提问。
 default_command: next
 template: 20230202

@@ -32,3 +32,7 @@ actions:
       - ultra realistic illustration of steve urkle as the hulk, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
 
       Give me a detailed prompt to describe this story we talked about before. To use characteristics instead of names to describe the people in the story.
+  previous:
+    prefix: 简单概述一下前面的故事。
+  query:
+    prefix: 基于当前故事提问：

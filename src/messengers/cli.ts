@@ -20,7 +20,7 @@ export class Cli {
 
       const env: types.Env = {
         senderId: os.hostname(),
-        senderName: os.hostname(),
+        senderName: "JOJO",
         replyFunc: console.log,
         message: input,
       };

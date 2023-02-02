@@ -13,7 +13,7 @@ interface Role {
   background: string;
 };
 
-type CmdType = "open" | "next" | "end" | "join" | "goal" | "image_prompt";
+type CmdType = "open" | "next" | "end" | "join" | "goal" | "image_prompt" | "previous" | "query";
 
 export class RPG extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
@@ -31,6 +31,12 @@ export class RPG extends Conversation {
         break;
       case "image_prompt":
         msg = await this.imagePrompt(env);
+        break;
+      case "previous":
+        msg = await this.previous(env);
+        break;
+      case "query":
+        msg = await this.query(content, env);
         break;
     }
 
@@ -131,6 +137,18 @@ version: ${this.config.template}
 
   private async imagePrompt(env: Env): Promise<Message> {
     const prompt = this.getPrompt("image_prompt", "", env.senderId);
+
+    return await this.send(prompt, env);
+  }
+
+  private async previous(env: Env): Promise<Message> {
+    const prompt = this.getPrompt("previous", "", env.senderId);
+
+    return await this.send(prompt, env);
+  }
+
+  private async query(content: string, env: Env): Promise<Message> {
+    const prompt = this.getPrompt("query", content, env.senderId);
 
     return await this.send(prompt, env);
   }
