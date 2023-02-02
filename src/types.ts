@@ -2,6 +2,7 @@ export interface Env {
   senderId: string;
   senderName: string;
   replyFunc: (text: string) => void;
+  message: string;
 }
 
 export interface Message {

@@ -1,0 +1,9 @@
+name: Chat
+description: 普通对话模式。
+entry: chat
+services_required:
+  - chatgpt
+commands:
+  - command: c
+    description: 聊天，随便说啥，会记录上下文。
+default_command: c

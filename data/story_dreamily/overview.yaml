@@ -1,0 +1,13 @@
+name: 小梦 Story
+description: 和小梦一起写故事。
+entry: dstory
+services_required:
+  - dreamily
+commands:
+  - command: open
+    description: 通过预设的 universe_id 设定世界设定。
+  - command: previous
+    description: 前情提要
+  - command: next
+    description: 续写故事
+default_command: next

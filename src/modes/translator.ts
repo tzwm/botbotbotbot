@@ -11,13 +11,17 @@ export class Translator extends Conversation {
     super(chatgpt);
   }
 
-  async onMessage(text: string, env: Env): Promise<void> {
-    const prompt = [PREFIX, text].join("\n");
+  async onMessage(_: string, content: string, env: Env): Promise<void> {
+    const prompt = [PREFIX, content].join("\n");
     const msg = await this.send(prompt, env);
     env.replyFunc(msg.response);
   }
 
   help(): string {
     return "Translator 模式：中英文互相翻译";
+  }
+
+  configFilename(): string {
+    return "translator";
   }
 }

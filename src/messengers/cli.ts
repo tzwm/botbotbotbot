@@ -11,7 +11,7 @@ export class Cli {
     this.controller = controller;
   }
 
-  async start() {
+  async onMessage() {
     while (true) {
       const input = this.prompt(">");
       if (!input) {
@@ -22,6 +22,7 @@ export class Cli {
         senderId: os.hostname(),
         senderName: os.hostname(),
         replyFunc: console.log,
+        message: input,
       };
       const sessionId = os.hostname();
 

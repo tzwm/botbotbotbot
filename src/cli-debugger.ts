@@ -14,12 +14,12 @@ async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
   return chatgpt;
 }
 
-//const chatgpt = await initChatGPT();
+const chatgpt = await initChatGPT();
 const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
 
 const controller = new Controller({
-  //chatgpt: chatgpt,
+  chatgpt: chatgpt,
   dreamily: dreamily,
 });
 
-await new Cli(controller).start();
+await new Cli(controller).onMessage();

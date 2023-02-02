@@ -1,0 +1,9 @@
+name: Translator
+destination: 中英文互相翻译。
+entry: translator
+services_required:
+  - chatgpt
+commands:
+  - command: t
+    description: 翻译这个语句。
+default_command: t

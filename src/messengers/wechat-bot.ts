@@ -78,6 +78,7 @@ export class WechatBot {
       senderId: talker.id,
       senderName: senderName,
       replyFunc: msg.say.bind(msg),
+      message: text,
     };
 
     await this.controller.onMessage(

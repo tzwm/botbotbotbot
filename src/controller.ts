@@ -2,7 +2,7 @@ import { Env } from "./types.js";
 import * as types from "./types.js";
 import { Conversation } from "./modes/conversation.js";
 import { ChatGPTAPIBrowser } from "chatgpt";
-import { removeCmdPrefix } from "./utils.js";
+import { removeCmdPrefix, replyNotFoundCmd } from "./utils.js";
 import { Story } from "./modes/story.js";
 import { Chat } from "./modes/chat.js";
 import { RPG } from "./modes/rpg.js";
@@ -27,57 +27,47 @@ export class Controller {
   async onMessage(
     message: string,
     sessionId: types.SessionIdType,
-    env: Env): Promise<void> {
+    env: Env
+  ): Promise<void> {
+    message = message.trim();
     const replyFunc = env.replyFunc;
     let conversation = this.sessions.get(sessionId);
 
-    // == high priority commands ==
-    if (message.startsWith("/help")) {
-      return this.printHelp(conversation, env);
+    const cmd = this.getCommand(message, conversation);
+    if (cmd === null) {
+      return replyNotFoundCmd(replyFunc, message);
     }
 
-    if (message.startsWith("/clear")) {
-      this.sessions.delete(sessionId);
-      return replyFunc("对话清除了，可以 /start 重新开始");
+    const content = removeCmdPrefix(message);
+    // == global commands ==
+    switch(cmd) {
+      case "help":
+        this.printHelp(conversation, env);
+        return;
+      case "clear":
+        this.sessions.delete(sessionId);
+        replyFunc("对话清除了，可以 /start 重新开始");
+        return;
+      case "start":
+        this.processStartCmd(
+          message,
+          conversation,
+          sessionId,
+          env,
+        );
+        return;
     }
 
-    // conversation's commands
+    // == mode commands ==
     if (conversation) {
-      return await conversation.onMessage(message, env);
+      await conversation.onMessage(
+        cmd,
+        content,
+        env
+      );
+    } else {
+      replyNotFoundCmd(replyFunc, message);
     }
-
-    if (message.startsWith("/start")) {
-      const convType = removeCmdPrefix(message).toLowerCase();
-      //TODO: improve it
-      if (this.services["chatgpt"]) {
-        if (convType == "chat") {
-          this.sessions.set(sessionId, new Chat(this.services["chatgpt"]));
-          return replyFunc("开始 Chat 模式，日常对话");
-        }
-        if (convType == "story") {
-          this.sessions.set(sessionId, new Story(this.services["chatgpt"]));
-          return replyFunc("开始 Story 模式，一起续写故事吧");
-        }
-        if (convType == "rpg") {
-          this.sessions.set(sessionId, new RPG(this.services["chatgpt"]));
-          return replyFunc("开始 RPG 模式，一起玩游戏吧");
-        }
-        //TODO: improve this commands list
-        if (convType == "translator" || convType == "tran") {
-          this.sessions.set(sessionId, new Translator(this.services["chatgpt"]));
-          return replyFunc("开始 Translator 模式，中英文互翻");
-        }
-      }
-      if (this.services["dreamily"]) {
-        if (convType == "dstory") {
-          this.sessions.set(sessionId, new StoryDreamily(this.services["dreamily"]));
-          return replyFunc("开始小梦 Story 模式，一起和小梦续写故事吧");
-        }
-      }
-      return replyFunc(`没找到 ${convType} 这个模式`);
-    }
-
-    replyFunc("请先 /start ${mode} 开始");
   }
 
   private printHelp(conversation: Conversation | undefined, env: Env) {
@@ -91,5 +81,74 @@ export class Controller {
     }
 
     env.replyFunc(res);
+  }
+
+  private getCommand(message: string, conversation: Conversation | undefined): string | null {
+    let cmd = message.match(/^\/\w+/)?.[0];
+    if (!cmd) {
+      if (!conversation) {
+        return null;
+      }
+
+      cmd = conversation.config.default_command;
+      return cmd || null;
+    }
+
+    return cmd.substring(1);
+  }
+
+  private async processStartCmd(
+    message: string,
+    conversation: Conversation | undefined,
+    sessionId: types.SessionIdType,
+    env: Env,
+  ): Promise<void> {
+    const cmd = "start";
+    const replyFunc = env.replyFunc;
+
+    // conversation's commands
+/*    if (conversation) {*/
+      /*return await conversation.onMessage(*/
+        /*cmd,*/
+        /*message,*/
+        /*env*/
+      /*);*/
+    /*}*/
+
+    // start new game by mode
+    const mode = removeCmdPrefix(message).toLowerCase();
+    let session: Conversation | undefined;
+    //TODO: Improve it
+    if (this.services["chatgpt"]) {
+      switch(mode) {
+        case "chat":
+          session = new Chat(this.services["chatgpt"]);
+          break;
+        case "story":
+          session = new Story(this.services["chatgpt"]);
+          break;
+        case "rpg":
+          session = new RPG(this.services["chatgpt"]);
+          break;
+        case "tran":
+        case "translator":
+          session = new Translator(this.services["chatgpt"]);
+          break;
+      }
+    }
+    if (this.services["dreamily"]) {
+      switch(mode) {
+        case "dstory":
+          session = new StoryDreamily(this.services["dreamily"]);
+          break;
+      }
+    }
+
+    if (session) {
+      this.sessions.set(sessionId, session);
+      replyFunc(`开启 ${session.config.name} 模式。`);
+    } else {
+      replyFunc(`没找到 ${mode} 这个模式`);
+    }
   }
 }

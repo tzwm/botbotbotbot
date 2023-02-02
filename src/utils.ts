@@ -56,3 +56,8 @@ export async function requestChatGPT(
 export function removeCmdPrefix(text: string): string {
   return text.trim().replace(/^\/\w+\s+/, "");
 }
+
+export function replyNotFoundCmd(replyFunc: Function, message: string): void {
+  console.warn("not found command", message);
+  replyFunc("未找到命令");
+}

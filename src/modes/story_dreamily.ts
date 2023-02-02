@@ -1,7 +1,7 @@
 import { Conversation } from "./conversation.js";
 import { DreamilyAPI } from "dreamily-api";
 import { Env } from "../types.js";
-import { removeCmdPrefix } from "../utils.js";
+import { replyNotFoundCmd } from "../utils.js";
 
 export class StoryDreamily extends Conversation {
   universeId: string;
@@ -12,29 +12,37 @@ export class StoryDreamily extends Conversation {
     this.universeId = "";
   }
 
-  async onMessage(text: string, env: Env): Promise<void> {
-    if (text.startsWith("/start")) {
-      this.universeId = removeCmdPrefix(text);
-      env.replyFunc(`世界设定为：${this.universeId}`);
-      return;
-    }
+  async onMessage(cmd: string, content: string, env: Env): Promise<void> {
+    const replyFunc = env.replyFunc;
 
-    if (text.startsWith("/previous")) {
-      env.replyFunc(`前情提要：${this.fullStory()}`);
-      return;
+    switch(cmd) {
+      case "open":
+        this.universeId = content;
+        replyFunc(`世界设定为：${this.universeId}`);
+        return;
+      case "previous":
+        replyFunc(`前情提要：${this.fullStory()}`);
+        return;
+      case "next":
+        const msg = await this.send(
+          [this.fullStory(), content].join(""),
+          env
+        );
+        replyFunc(msg.response);
+        return;
+      default:
+        replyNotFoundCmd(replyFunc, env.message);
     }
-
-    const msg = await this.send(
-      [this.fullStory(), text].join(""),
-      env
-    );
-    env.replyFunc(msg.response);
   }
 
   help(): string {
     return `> 小梦 Story 模式：大家一起和小梦写故事。
 /start #{universe_id} 世界设定的 ID
 /previous 前情提要`;
+  }
+
+  configFilename(): string {
+    return "story_dreamily";
   }
 
   private fullStory(): string {

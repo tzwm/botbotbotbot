@@ -5,8 +5,12 @@ import {
   Message,
 } from "../types.js";
 import { requestChatGPT } from "../utils.js";
+import fs from "fs";
+import YAML from "yaml";
 
 type ServiceType = ChatGPTAPIBrowser | DreamilyAPI;
+
+const ConfigDir = "data/";
 
 export abstract class Conversation {
   service: ServiceType;
@@ -14,12 +18,20 @@ export abstract class Conversation {
   lastMessageId?: string;
   universeId?: string;
   messages = new Array<Message>();
+  config: any;
 
-  abstract onMessage(text: string, env: Env): Promise<void>;
+  abstract onMessage(cmd: string, text: string, env: Env): Promise<void>;
   abstract help(): string;
+  abstract configFilename(): string;
 
   constructor(service: ServiceType) {
     this.service = service;
+
+    const configFile = fs.readFileSync(
+      `${ConfigDir}${this.configFilename()}/overview.yaml`,
+      "utf-8",
+    );
+    this.config = YAML.parse(configFile);
   }
 
   protected async send(prompt: string, env: Env): Promise<Message> {

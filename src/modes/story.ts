@@ -1,4 +1,4 @@
-import { removeCmdPrefix } from "../utils.js";
+import { replyNotFoundCmd } from "../utils.js";
 import { Conversation } from "./conversation.js";
 import {
   Env,
@@ -15,42 +15,48 @@ interface Role {
 
 type CmdType = "start" | "next" | "end" | "join";
 
-const TEMPLATE = "story_20230110";
-
 export class Story extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
 
-  async onMessage(text: string, env: Env): Promise<void> {
+  async onMessage(cmd: string, content: string, env: Env): Promise<void> {
+    const replyFunc = env.replyFunc;
     let msg: Message | undefined;
-    if (text.startsWith("/start")) {
-      msg = await this.start(removeCmdPrefix(text), env);
-    }
-    if (text.startsWith("/join")) {
-      msg = await this.join(removeCmdPrefix(text), env);
+
+    switch(cmd) {
+      case "open":
+        msg = await this.start(content, env);
+        break;
+      case "join":
+        msg = await this.join(content, env);
+        break;
     }
 
+    // some commands need to join before
     const role = this.roles.get(env.senderId);
-    if (!role) {
-      env.replyFunc("还没有加入，请先 /join 加入");
+    if (!role && !msg) {
+      replyFunc("还没有加入，请先 /join 加入");
       return;
     }
 
-    if (text.startsWith("/end")) {
-      msg = await this.end(env);
-    }
-    if (text.startsWith("/next")) {
-      msg = await this.next(removeCmdPrefix(text), env);
-    }
-    if (msg === undefined) {
-      msg = await this.next(text, env);
+    switch(cmd) {
+      case "end":
+        msg = await this.end(env);
+        break;
+      case "next":
+        msg = await this.next(content, env);
+        break;
     }
 
-    env.replyFunc(msg.response);
+    if (msg) {
+      replyFunc(msg.response);
+    } else {
+      replyNotFoundCmd(env.replyFunc, env.message);
+    }
   }
 
   help(): string {
     return `> Story 模式：大家一起写故事。
-version: ${TEMPLATE}
+version: ${this.config.template}
 /start #{background_of_the_world}
     故事设定、背景资料等。
     例子：/start 南边小岛上生活着一群兔头熊身的魔法师，他们热衷于编写整个大陆的百科全书。
@@ -62,6 +68,10 @@ version: ${TEMPLATE}
     例子：/next 我看到一个不错的拉面店走了进去，没想到这是一家魔法拉面道具店。
 /end
     结束这个故事。`;
+  }
+
+  configFilename(): string {
+    return "story";
   }
 
   private async start(opening: string, env: Env): Promise<Message> {
@@ -120,6 +130,9 @@ version: ${TEMPLATE}
     return role;
   }
 
-  private templateFile = fs.readFileSync(`data/templates/${TEMPLATE}.yaml`, "utf-8");
+  private templateFile = fs.readFileSync(
+    `data/${this.configFilename()}/${this.config.template}.yaml`,
+    "utf-8"
+  );
   private template = YAML.parse(this.templateFile)["actions"];
 }
