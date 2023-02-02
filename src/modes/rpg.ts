@@ -116,7 +116,7 @@ version: ${this.config.template}
   private async next(text: string, env: Env): Promise<Message> {
     const roll = Math.random();
     let prefix: string;
-    if (roll == 0) { // fail
+    if (roll > 0.4) { // fail
       env.replyFunc("Roll 点成功，继续……");
       prefix = this.template["next"]["prefix_success"];
     } else {
