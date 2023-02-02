@@ -2,12 +2,12 @@ import {
   Env,
 } from "../types.js";
 import { Conversation } from "./conversation.js";
-import { ChatGPTAPIBrowser } from "chatgpt";
+import { ChatGPTAPI } from "chatgpt";
 
 const PREFIX = "作为翻译器，帮我翻译下面这段，如果是英文翻译成中文，中文则翻译成英文。";
 
 export class Translator extends Conversation {
-  constructor(chatgpt: ChatGPTAPIBrowser) {
+  constructor(chatgpt: ChatGPTAPI) {
     super(chatgpt);
   }
 

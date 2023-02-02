@@ -1,7 +1,7 @@
 import { Env } from "./types.js";
 import * as types from "./types.js";
 import { Conversation } from "./modes/conversation.js";
-import { ChatGPTAPIBrowser } from "chatgpt";
+import { ChatGPTAPI } from "chatgpt";
 import { removeCmdPrefix, replyNotFoundCmd } from "./utils.js";
 import { Story } from "./modes/story.js";
 import { Chat } from "./modes/chat.js";
@@ -11,7 +11,7 @@ import { Translator } from "./modes/translator.js";
 import { DreamilyAPI } from "dreamily-api";
 
 interface Services {
-  chatgpt?: ChatGPTAPIBrowser;
+  chatgpt?: ChatGPTAPI;
   dreamily?: DreamilyAPI;
 };
 

@@ -1,4 +1,4 @@
-import { ChatGPTAPIBrowser } from "chatgpt";
+import { ChatGPTAPI } from "chatgpt";
 import { DreamilyAPI } from "dreamily-api";
 import {
   Env,
@@ -8,7 +8,7 @@ import { requestChatGPT } from "../utils.js";
 import fs from "fs";
 import YAML from "yaml";
 
-type ServiceType = ChatGPTAPIBrowser | DreamilyAPI;
+type ServiceType = ChatGPTAPI | DreamilyAPI;
 
 const ConfigDir = "data/";
 
@@ -38,7 +38,7 @@ export abstract class Conversation {
     prompt = prompt.trim();
     let msg: Message;
 
-    if (this.service instanceof ChatGPTAPIBrowser) {
+    if (this.service instanceof ChatGPTAPI) {
       env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
 
       const res = await requestChatGPT(
@@ -49,15 +49,15 @@ export abstract class Conversation {
       );
 
       msg = {
-        id: res.messageId,
+        id: res.id,
         prompt: prompt,
-        response: res.response,
+        response: res.text,
         senderId: env.senderId,
         conversationId: res.conversationId,
         parentMessageId: this.lastMessageId,
       };
       this.conversationId = res.conversationId;
-      this.lastMessageId = res.messageId;
+      this.lastMessageId = res.id;
     } else {
       if (this.service instanceof DreamilyAPI) {
         const res = await this.service.continue(

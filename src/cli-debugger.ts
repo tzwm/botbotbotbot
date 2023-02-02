@@ -1,20 +1,13 @@
-import { ChatGPTAPIBrowser } from "chatgpt";
+import { ChatGPTAPI } from "chatgpt";
 import { DreamilyAPI } from "dreamily-api";
 import { Cli } from "./messengers/cli.js";
 import { Controller } from "./controller.js";
 
-async function initChatGPT(): Promise<ChatGPTAPIBrowser> {
-  const chatgpt = new ChatGPTAPIBrowser({
-    email: process.env.OPENAI_EMAIL || "",
-    password: process.env.OPENAI_PASSWORD || "",
-    proxyServer: process.env.HTTP_PROXY,
-  });
-  await chatgpt.initSession();
 
-  return chatgpt;
-}
-
-const chatgpt = await initChatGPT();
+const chatgpt = new ChatGPTAPI({
+  apiKey: process.env.OPENAI_API_KEY || "",
+  debug: true,
+});
 const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
 
 const controller = new Controller({

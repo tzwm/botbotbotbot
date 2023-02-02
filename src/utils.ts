@@ -1,13 +1,13 @@
-import { ChatResponse, ChatGPTAPIBrowser } from "chatgpt";
+import { ChatMessage, ChatGPTAPI } from "chatgpt";
 
 const MAX_TRY_COUNT = 2;
 
 export async function requestChatGPT(
-  chatgpt: ChatGPTAPIBrowser,
+  chatgpt: ChatGPTAPI,
   prompt: string,
   conversationId?: string,
   parentMessageId?: string,
-): Promise<ChatResponse> {
+): Promise<ChatMessage> {
   let tryCount = 0;
 
   do {
@@ -16,10 +16,8 @@ export async function requestChatGPT(
     try {
       console.log("chatgpt.sendMessage",
                   `retried: ${tryCount - 1}`,
-                  prompt, {
-                    conversationId,
-                    parentMessageId,
-                  });
+                  prompt,
+                  { conversationId, parentMessageId });
 
       const res = await chatgpt.sendMessage(prompt, {
         conversationId,
@@ -29,19 +27,15 @@ export async function requestChatGPT(
 
       console.log("chatgpt.response", res);
 
-      if (res.response) {
+      if (res.text) {
         return res;
       }
     } catch (err: any) {
       console.error("chatgpt.error", prompt, err);
 
-      if (err.match(/error 429/)) { // too many requests
-        tryCount = MAX_TRY_COUNT + 1;
-      }
-      if (!await chatgpt.getIsAuthenticated()) {
-        await chatgpt.refreshSession();
-      }
-
+      //if (err.match(/error 429/)) { // too many requests
+        //tryCount = MAX_TRY_COUNT + 1;
+      //}
 
       if (tryCount > MAX_TRY_COUNT) {
         throw err;

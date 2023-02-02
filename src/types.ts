@@ -10,7 +10,7 @@ export interface Message {
   prompt: string;
   response: string;
   senderId: string;
-  conversationId: string;
+  conversationId?: string;
   parentMessageId?: string;
   universeId?: string;
 };

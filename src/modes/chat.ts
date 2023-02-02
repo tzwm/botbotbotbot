@@ -1,9 +1,9 @@
 import { Env } from "../types.js";
 import { Conversation } from "./conversation.js";
-import { ChatGPTAPIBrowser } from "chatgpt";
+import { ChatGPTAPI } from "chatgpt";
 
 export class Chat extends Conversation {
-  constructor(chatgpt: ChatGPTAPIBrowser) {
+  constructor(chatgpt: ChatGPTAPI) {
     super(chatgpt);
   }
 
