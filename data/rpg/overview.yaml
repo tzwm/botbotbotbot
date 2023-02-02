@@ -1,0 +1,23 @@
+name: RPG
+description: 一起文字冒险。
+entry: rpg
+services_required:
+  - chatgpt
+commands:
+  - command: open
+    description: 以一个故事设定开始一个故事续写
+    example: /open 南边小岛上生活着一群兔头熊身的魔法师，他们热衷于编写整个大陆的百科全书。
+  - command: join
+    description: 自己作为一个角色加入故事中，以第一人称附带上角色介绍和出场。
+    example: /join 我是没有头发、爱吃奥利奥的产品经理魔法师。正走在大街上觅食想要找一碗面吃。
+  - command: next
+    description: 继续写故事，最好以第一人称。
+    example: /next 我看到一个不错的拉面店走了进去，没想到这是一家魔法拉面道具店。
+  - command: goal
+    description: 给每个加入的角色设定一个目标。
+  - command: image_prompt
+    description: 基于当前故事场景生成 Stable Diffusion prompt。
+  - command: end
+    description: 结束这个故事。
+default_command: next
+template: 20230202

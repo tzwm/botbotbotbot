@@ -13,7 +13,7 @@ interface Role {
   background: string;
 };
 
-type CmdType = "start" | "next" | "end" | "join";
+type CmdType = "open" | "next" | "end" | "join";
 
 export class Story extends Conversation {
   roles = new Map<string, Role>(); //roleId => Role
@@ -24,7 +24,7 @@ export class Story extends Conversation {
 
     switch(cmd) {
       case "open":
-        msg = await this.start(content, env);
+        msg = await this.open(content, env);
         break;
       case "join":
         msg = await this.join(content, env);
@@ -57,9 +57,9 @@ export class Story extends Conversation {
   help(): string {
     return `> Story 模式：大家一起写故事。
 version: ${this.config.template}
-/start #{background_of_the_world}
+/open #{background_of_the_world}
     故事设定、背景资料等。
-    例子：/start 南边小岛上生活着一群兔头熊身的魔法师，他们热衷于编写整个大陆的百科全书。
+    例子：/open 南边小岛上生活着一群兔头熊身的魔法师，他们热衷于编写整个大陆的百科全书。
 /join #{background_of_the_role}
     自己作为一个角色加入故事中，附带上角色介绍和出场。
     例子：/join 我是没有头发、爱吃奥利奥的产品经理魔法师。正走在大街上觅食想要找一碗面吃。
@@ -74,9 +74,9 @@ version: ${this.config.template}
     return "story";
   }
 
-  private async start(opening: string, env: Env): Promise<Message> {
+  private async open(opening: string, env: Env): Promise<Message> {
     const prompt = this.getPrompt(
-      "start",
+      "open",
       opening,
       env.senderId,
     );

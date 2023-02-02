@@ -1,0 +1,34 @@
+# the problem is every response is too long. I cannot control the limitation of word count
+
+version: 20230112
+actions:
+  open:
+    prefix: 现在来充当一个冒险文字游戏。回复字数控制在 40 个字以内，故事要非常有戏剧性，以反转和搞笑为主。开头是：
+    suffix: 记住开头，先不要续写故事，复述一遍同样的开头。
+  join:
+    prefix: 加入新的角色：
+    suffix: 继续，回复字数控制在 40 个字以内，续写十分钟内发生的事情。描写要非常具体，包括角色外貌、衣着、心理动作、说的话等，还包括环境描写。剧情要以搞笑和反转为主。尽量兼顾到大部分通过我描述加入的角色。
+  next:
+    prefix: 回复字数控制在 40 个字以内，续写十分钟内发生的事情。描写要非常具体，包括角色外貌、衣着、心理动作、说的话等，还包括环境描写。剧情要以搞笑和反转为主。尽量兼顾到大部分通过我描述加入的角色。
+    prefix_success: 继续：
+    prefix_fail: 继续向相反方向发展：
+  end:
+    prefix: 40 字内概述整个故事，并给所有通过我描述加入的角色写一个充满神奇而惊喜的结局。剧情不要跳跃式发展，要跟当前保持连贯。结局要考虑到在当前进展下角色的目标是否完成。
+  goal:
+    prefix: 分别给
+    suffix: 设定一个搞笑的目标。
+  image_prompt:
+    prefix: |
+      Stable Diffusion is an AI art generation model similar to DALLE-2.
+      Below is a list of prompts that can be used to generate images with Stable Diffusion:
+
+      - portait of a homer simpson archer shooting arrow at forest monster, front game card, drark, marvel comics, dark, intricate, highly detailed, smooth, artstation, digital illustration by ruan jia and mandy jurgens and artgerm and wayne barlowe and greg rutkowski and zdislav beksinski
+      - pirate, concept art, deep focus, fantasy, intricate, highly detailed, digital painting, artstation, matte, sharp focus, illustration, art by magali villeneuve, chippy, ryan yee, rk post, clint cearley, daniel ljunggren, zoltan boros, gabor szikszai, howard lyon, steve argyle, winona nelson
+      - ghost inside a hunted room, art by lois van baarle and loish and ross tran and rossdraws and sam yang and samdoesarts and artgerm, digital art, highly detailed, intricate, sharp focus, Trending on Artstation HQ, deviantart, unreal engine 5, 4K UHD image
+      - red dead redemption 2, cinematic view, epic sky, detailed, concept art, low angle, high detail, warm lighting, volumetric, godrays, vivid, beautiful, trending on artstation, by jordan grimmer, huge scene, grass, art greg rutkowski
+      - a fantasy style portrait painting of rachel lane / alison brie hybrid in the style of francois boucher oil painting unreal 5 daz. rpg portrait, extremely detailed artgerm greg rutkowski alphonse mucha greg hildebrandt tim hildebrandt
+      - athena, greek goddess, claudia black, art by artgerm and greg rutkowski and magali villeneuve, bronze greek armor, owl crown, d & d, fantasy, intricate, portrait, highly detailed, headshot, digital painting, trending on artstation, concept art, sharp focus, illustration
+      - closeup portrait shot of a large strong female biomechanic woman in a scenic scifi environment, intricate, elegant, highly detailed, centered, digital painting, artstation, concept art, smooth, sharp focus, warframe, illustration, thomas kinkade, tomasz alen kopera, peter mohrbacher, donato giancola, leyendecker, boris vallejo
+      - ultra realistic illustration of steve urkle as the hulk, intricate, elegant, highly detailed, digital painting, artstation, concept art, smooth, sharp focus, illustration, art by artgerm and greg rutkowski and alphonse mucha
+
+      Give me a detailed prompt to describe this story we talked about before. To use characteristics instead of names to describe the people in the story.
