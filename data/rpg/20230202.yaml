@@ -1,6 +1,6 @@
 # the problem is every response is too long. I cannot control the limitation of word count
 
-version: 20230112
+version: 20230202
 actions:
   open:
     prefix: 现在来充当一个冒险文字游戏。回复字数控制在 40 个字以内，故事要非常有戏剧性，以反转和搞笑为主。开头是：
