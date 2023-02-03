@@ -10,7 +10,7 @@ import YAML from "yaml";
 
 type ServiceType = ChatGPTAPI | DreamilyAPI;
 
-const ConfigDir = "data/";
+const ConfigDir = "templates/";
 
 export abstract class Conversation {
   service: ServiceType;
