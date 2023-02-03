@@ -1,6 +1,7 @@
 FROM node:19-slim
 
 LABEL maintainer="tzwm"
+LABEL org.opencontainers.image.source=https://github.com/tzwm/MTRPG-AI
 
 RUN apt-get update && apt-get install -y curl
 
