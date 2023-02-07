@@ -116,11 +116,11 @@ version: ${this.config.template}
   private async next(text: string, env: Env): Promise<Message> {
     const roll = Math.floor(Math.random() * 6); // [0, 5]
     let prefix: string;
-    if (roll < 4) {
-      env.replyFunc(`点数 ${roll}，roll 点成功，正常继续……`);
+    if (roll > 2) {
+      await env.replyFunc(`点数 ${roll}，roll 点成功，正常继续……`);
       prefix = this.template["next"]["prefix_success"];
     } else {
-      env.replyFunc(`点数 ${roll}，roll 点失败，反方向前进，嘿嘿……`);
+      await env.replyFunc(`点数 ${roll}，roll 点失败，反方向前进，嘿嘿……`);
       prefix = this.template["next"]["prefix_fail"];
     }
 
