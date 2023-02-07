@@ -10,7 +10,6 @@ import YAML from "yaml";
 
 type ServiceType = ChatGPTAPI | DreamilyAPI;
 
-const ConfigDir = "templates/";
 
 export abstract class Conversation {
   service: ServiceType;
@@ -28,7 +27,7 @@ export abstract class Conversation {
     this.service = service;
 
     const configFile = fs.readFileSync(
-      `${ConfigDir}${this.configFilename()}/overview.yaml`,
+      `${this.configDir}${this.configFilename()}/overview.yaml`,
       "utf-8",
     );
     this.config = YAML.parse(configFile);
@@ -82,4 +81,6 @@ export abstract class Conversation {
 
     return msg;
   }
+
+  protected configDir = "templates/";
 }

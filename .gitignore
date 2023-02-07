@@ -1,4 +1,7 @@
 node_modules/
 
+data/
+
 .env
 *.memory-card.json
+

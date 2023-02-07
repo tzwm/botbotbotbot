@@ -131,7 +131,7 @@ version: ${this.config.template}
   }
 
   private templateFile = fs.readFileSync(
-    `data/${this.configFilename()}/${this.config.template}.yaml`,
+    `${this.configDir}/${this.configFilename()}/${this.config.template}.yaml`,
     "utf-8"
   );
   private template = YAML.parse(this.templateFile)["actions"];
