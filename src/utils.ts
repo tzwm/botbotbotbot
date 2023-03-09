@@ -27,7 +27,6 @@ export async function requestStableDiffusion(prompt: string): Promise<string | n
 export async function requestChatGPT(
   chatgpt: ChatGPTAPI,
   prompt: string,
-  conversationId?: string,
   parentMessageId?: string,
 ): Promise<ChatMessage> {
   let tryCount = 0;
@@ -39,10 +38,9 @@ export async function requestChatGPT(
       console.log("chatgpt.sendMessage",
                   `retried: ${tryCount - 1}`,
                   prompt,
-                  { conversationId, parentMessageId });
+                  { parentMessageId });
 
       const res = await chatgpt.sendMessage(prompt, {
-        conversationId,
         parentMessageId,
         timeoutMs: 2 * 60 * 1000,
       });

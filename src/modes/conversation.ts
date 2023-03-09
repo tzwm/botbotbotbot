@@ -43,7 +43,6 @@ export abstract class Conversation {
       const res = await requestChatGPT(
         this.service,
         prompt,
-        this.conversationId,
         this.lastMessageId
       );
 
