@@ -2,7 +2,7 @@ import { ChatGPTAPI } from "chatgpt";
 import { DreamilyAPI } from "dreamily-api";
 import { WechatBot } from "./messengers/wechat-bot.js";
 import { Controller } from "./controller.js";
-
+import { LarkMessenger } from "./messengers/lark.js";
 
 const chatgpt = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY || "",
@@ -17,4 +17,9 @@ const controller = new Controller({
   dreamily: dreamily,
 });
 
-new WechatBot(controller).start();
+new LarkMessenger(
+  process.env.LARK_LISTENER_PATH || "/lark",
+  Number(process.env.LARK_LISTENER_PORT) || 6347,
+).start();
+
+//new WechatBot(controller).start();
