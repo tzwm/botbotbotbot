@@ -1,79 +1,95 @@
-import express from "express";
-
-const FEISHU_API_BASE_URL = "https://open.feishu.cn/open-apis";
-const FEISHU_REQ_HEADER = { "Content-Type": "application/json; charset=utf-8" };
+import http from "http";
+import * as lark from "@larksuiteoapi/node-sdk";
+import { Controller } from "../controller.js";
+import * as types from "../types.js";
 
 
 export class LarkMessenger {
-  server: express.Express;
+  client: lark.Client;
+  server: http.Server;
   port: number;
   path: string;
 
-  auth_token: string;
-  auth_token_expire_at: number;
+  controller: Controller;
 
-
-  constructor(path: string, port: number) {
+  constructor(path: string, port: number, controller: Controller) {
+    this.client = new lark.Client({
+      appId: process.env.LARK_APPID || "",
+      appSecret: process.env.LARK_SECRET || "",
+      appType: lark.AppType.SelfBuild,
+      domain: lark.Domain.Feishu,
+    });
+    this.server = http.createServer();
     this.port = port;
     this.path = path;
-    this.server = express();
+    this.controller = controller;
 
-    this.auth_token = "";
-    this.auth_token_expire_at = -1;
+    const eventDispatcher = new lark.EventDispatcher({}).register({
+      'im.message.receive_v1': this.onMessage.bind(this),
+    });
 
-    this.init();
+    this.server.on('request', lark.adaptDefault(
+      path,
+      eventDispatcher,
+      { autoChallenge: true },
+    ));
   }
 
   start() {
     this.server.listen(this.port, () => {
-      return console.log(`Express is listening at http://localhost:${this.port}`);
+      return console.log(`Lark Server is listening at http://localhost:${this.port}`);
     });
   }
 
 
-  private init() {
-    this.server.use(express.json());
-    this.refresh_auth_token();
+  private async onMessage(data: any) {
+    console.log("lark.message", data);
+    //console.log(data.message.mentions[0].name);
+    //const chatId = data.message.chat_id;
 
-    this.server.post(this.path, (req, res) => {
-      console.log("lark:", req.body);
-      if (req.body.type === "url_verification") {
-        res.json({ "challenge": req.body.challenge });
+    const messageData = data.message;
+    if (messageData.message_type != "text") {
+      return;
+    }
+    if (messageData.chat_type === "group") {
+      if (!messageData.mentions) {
         return;
       }
+      const mention_names = messageData.mentions.map((m: any) => m.name);
+      if (mention_names.indexOf(process.env.LARK_BOT_NAME) === -1) {
+        return;
+      }
+    }
 
-      res.json({ "status": "ok" });
-    });
+    const replyFunc = this.makeReplyFunc(messageData.message_id);
+    const content = JSON.parse(data.message.content)["text"].replace(/@_user.+ /, "");
+
+    const sessionId = messageData.root_id ? messageData.root_id : messageData.message_id;
+    const env: types.Env = {
+      senderId: sessionId,
+      senderName: data.sender.sender_id.user_id ,
+      replyFunc: replyFunc,
+      message: content,
+    };
+
+    await this.controller.onMessage(
+      content,
+      sessionId,
+      env,
+    );
   }
 
-  private reply() {
-  }
-
-  private async refresh_auth_token() {
-    if (this.auth_token && this.auth_token_expire_at > +new Date) {
-      return;
-    }
-
-    const res = await fetch(FEISHU_API_BASE_URL + "/auth/v3/tenant_access_token/internal", {
-      method: "POST",
-      headers: FEISHU_REQ_HEADER,
-      body: JSON.stringify({
-        "app_id": process.env.LARK_APPID,
-        "app_secret": process.env.LARK_SECRET,
-      }),
-    });
-
-    if (!res.ok) {
-      console.warn("lark.refresh_auth_token.error", res.status, res.statusText);
-      return;
-    }
-
-    const ret = await res.json();
-    if (ret["code"] === 0) {
-      this.auth_token = ret["tenant_access_token"];
-      this.auth_token_expire_at = +new Date + ret["expire"] - 10*60;
-    } else {
-      console.warn("lark.refresh_auth_token.error", ret["msg"]);
-    }
+  private makeReplyFunc(messageId: string): Function {
+    return (content: string) => {
+      this.client.im.message.reply({
+        path: {
+          message_id: messageId,
+        },
+        data: {
+          content: JSON.stringify({text: content }),
+          msg_type: "text",
+        },
+      })
+    };
   }
 }

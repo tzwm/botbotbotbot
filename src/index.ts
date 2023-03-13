@@ -10,16 +10,17 @@ const chatgpt = new ChatGPTAPI({
     temperature: 1.4,
   },
 });
-const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
+//const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
 
 const controller = new Controller({
   chatgpt: chatgpt,
-  dreamily: dreamily,
+  //dreamily: dreamily,
 });
 
 new LarkMessenger(
   process.env.LARK_LISTENER_PATH || "/lark",
   Number(process.env.LARK_LISTENER_PORT) || 6347,
+  controller,
 ).start();
 
 //new WechatBot(controller).start();
