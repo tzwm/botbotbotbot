@@ -62,7 +62,7 @@ export class LarkMessenger {
     }
 
     const replyFunc = this.makeReplyFunc(messageData.message_id);
-    const content = JSON.parse(data.message.content)["text"].replace(/@_user.+ /, "");
+    const content = JSON.parse(data.message.content)["text"].replace(/@_user\w+/g, "").trim();
 
     const sessionId = messageData.root_id ? messageData.root_id : messageData.message_id;
     const env: types.Env = {
