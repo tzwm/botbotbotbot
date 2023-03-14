@@ -24,7 +24,9 @@ export class LarkMessenger {
     this.path = path;
     this.controller = controller;
 
-    const eventDispatcher = new lark.EventDispatcher({}).register({
+    const eventDispatcher = new lark.EventDispatcher(
+      { encryptKey: process.env.LARK_ENCRYPT_KEY }
+    ).register({
       'im.message.receive_v1': this.onMessage.bind(this),
     });
 
@@ -42,22 +44,28 @@ export class LarkMessenger {
   }
 
 
-  private async onMessage(data: any) {
+  private async onMessage(data: any): Promise<object> {
     console.log("lark.message", data);
     //console.log(data.message.mentions[0].name);
     //const chatId = data.message.chat_id;
 
+    const ignore_ret = {
+      code: 200,
+      msg: "ignored",
+    }
     const messageData = data.message;
     if (messageData.message_type != "text") {
-      return;
+      return ignore_ret;
     }
     if (messageData.chat_type === "group") {
-      if (!messageData.mentions) {
-        return;
+      // thread 内不用 at 触发，thread 外需要 at bot
+      if (!messageData.root_id && !messageData.mentions) {
+        return ignore_ret;
       }
+
       const mention_names = messageData.mentions.map((m: any) => m.name);
       if (mention_names.indexOf(process.env.LARK_BOT_NAME) === -1) {
-        return;
+        return ignore_ret;
       }
     }
 
@@ -77,6 +85,11 @@ export class LarkMessenger {
       sessionId,
       env,
     );
+
+    return {
+      code: 201,
+      msg: "success",
+    }
   }
 
   private makeReplyFunc(messageId: string): Function {
