@@ -9,7 +9,7 @@ import { LarkMessenger } from "./messengers/lark.js";
 const chatgpt = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY || "",
   completionParams: {
-    temperature: 1.4,
+    temperature: +(process.env.OPENAI_CHAT_TEMPERATURE || 0.8),
   },
 });
 //const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");

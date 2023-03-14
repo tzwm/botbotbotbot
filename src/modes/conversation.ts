@@ -38,7 +38,7 @@ export abstract class Conversation {
     let msg: Message;
 
     if (this.service instanceof ChatGPTAPI) {
-      env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
+      //env.replyFunc("收到，请耐心等待，我是有点慢……看到回复前给我发消息基本是无效的。");
 
       const res = await requestChatGPT(
         this.service,
