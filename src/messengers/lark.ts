@@ -59,13 +59,16 @@ export class LarkMessenger {
     }
     if (messageData.chat_type === "group") {
       // thread 内不用 at 触发，thread 外需要 at bot
-      if (!messageData.root_id && !messageData.mentions) {
-        return ignore_ret;
-      }
+      if (!messageData.root_id) {
+        if (!messageData.mentions) {
+          return ignore_ret;
+        }
 
-      const mention_names = messageData.mentions.map((m: any) => m.name);
-      if (mention_names.indexOf(process.env.LARK_BOT_NAME) === -1) {
-        return ignore_ret;
+        // 不是 at bot
+        const mention_names = messageData.mentions.map((m: any) => m.name);
+        if (mention_names.indexOf(process.env.LARK_BOT_NAME) === -1) {
+          return ignore_ret;
+        }
       }
     }
 
