@@ -60,7 +60,7 @@ export class WechatBot {
         return;
       }
 
-      text = text.replace(/^@\w+\s+/, "").trim(); // remove @bot from text
+      text = text.replace(/^@\S+\s+/, "").trim(); // remove @bot from text
     }
 
     console.log("wechaty message received:", msg);
