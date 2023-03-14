@@ -1,6 +1,8 @@
 import { ChatGPTAPI } from "chatgpt";
 import { DreamilyAPI } from "dreamily-api";
 import { WechatBot } from "./messengers/wechat-bot.js";
+import { WxworkBot } from "./messengers/wxwork-bot.js";
+
 import { Controller } from "./controller.js";
 import { LarkMessenger } from "./messengers/lark.js";
 
@@ -24,3 +26,5 @@ new LarkMessenger(
 ).start();
 
 //new WechatBot(controller).start();
+
+new WxworkBot(controller).start();
