@@ -7,6 +7,7 @@ console.log(process.env.OPENAI_API_KEY);
 
 const chatgpt = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY || "",
+  apiBaseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
   completionParams: {
     temperature: 1.4,
   },
