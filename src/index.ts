@@ -8,15 +8,16 @@ import { LarkMessenger } from "./messengers/lark.js";
 
 const chatgpt = new ChatGPTAPI({
   apiKey: process.env.OPENAI_API_KEY || "",
+  apiBaseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
   completionParams: {
     temperature: +(process.env.OPENAI_CHAT_TEMPERATURE || 0.8),
   },
 });
-//const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
+const dreamily = new DreamilyAPI(process.env.DREAMILY_TOKEN || "");
 
 const controller = new Controller({
   chatgpt: chatgpt,
-  //dreamily: dreamily,
+  dreamily: dreamily,
 });
 
 new LarkMessenger(
