@@ -21,7 +21,7 @@ export class WxworkBot {
     this.controller = controller;
 
     this.bot = WechatyBuilder.build({
-      name: "mtrpg-wechat-bot",
+      name: "mtrpg-wxwork-bot",
       puppet: 'wechaty-puppet-service',
       puppetOptions: {
         token: process.env.WXWORK_TOKEN,
