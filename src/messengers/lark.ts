@@ -83,7 +83,7 @@ export class LarkMessenger {
       message: content,
     };
 
-    await this.controller.onMessage(
+    this.controller.onMessage(
       content,
       sessionId,
       env,
