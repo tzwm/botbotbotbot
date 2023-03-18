@@ -20,7 +20,6 @@ export class Guessle extends Conversation {
   }
 
   async onMessage(cmd: string | null, content: string, env: Env): Promise<void> {
-    console.log(cmd, content);
     if (this.isFinished) {
       env.replyFunc("这局结束了，新开一局吧朋友");
       return;
@@ -36,7 +35,6 @@ export class Guessle extends Conversation {
       }
     }
 
-    console.log(this.gameID);
     const gameData = this.getGameData();
     if (gameData === null) {
       env.replyFunc("没找到这个局，直接 /open 吧");
@@ -83,6 +81,7 @@ export class Guessle extends Conversation {
   }
 
   private open(gameData: any, replyFunc: Function) {
+    replyFunc(gameData["opening"]);
     this.replyNextStep(gameData, 0, replyFunc);
   }
 
@@ -97,7 +96,6 @@ export class Guessle extends Conversation {
 
   private getGameData() {
     const fileDir = `${this.configDir}${this.configFilename()}/data_${this.gameID}.yaml`;
-    console.log(fileDir);
     let file = "";
     try {
       file = fs.readFileSync(fileDir, "utf-8");
