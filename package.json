@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node --loader=ts-node/esm src/index.ts",
     "cli": "node --loader=ts-node/esm src/cli-debugger.ts",
-    "debug": "node inspect --loader ts-node/esm src/index.ts"
+    "debug": "node inspect --loader ts-node/esm src/index.ts",
+    "upload_images_to_lark": "node --loader=ts-node/esm scripts/upload_images_to_lark.ts"
   },
   "repository": {
     "type": "git",

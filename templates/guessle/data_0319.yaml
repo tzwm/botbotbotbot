@@ -1,0 +1,10 @@
+opening: 看图猜原神角色
+answers:
+  - 神里绫华
+  - 大小姐
+steps:
+  - lark_image_key: img_v2_a82e388e-88d4-4f27-a2ca-e9377078241g
+  - lark_image_key: img_v2_f7e3a785-84ae-49b1-94a6-ed3aa452bb4g
+  - lark_image_key: img_v2_4d667465-1615-4d58-9a20-897928952fcg
+bingo_replies:
+  - lark_image_key: img_v2_0b2443e7-9d86-4a8f-8d28-35fbe44b8b4g

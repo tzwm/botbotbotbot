@@ -64,8 +64,18 @@ export class Guessle extends Conversation {
 
   private guess(content: string, gameData: any, replyFunc: Function) {
     this.answers.push(content);
-    if (gameData["answer"].indexOf(content) > -1) {
+    if (gameData["answers"].indexOf(content) > -1) {
       replyFunc(`Bingo! ${this.answers.length} 次就猜对了，NB 啊`);
+      for (var r of gameData["bingo_replies"]) {
+        if (r["lark_image_key"]) {
+          const larkImageKey = r["lark_image_key"];
+          let img = FileBox.fromUuid(larkImageKey);
+          img.metadata = {
+            "larkImageKey": larkImageKey
+          }
+          replyFunc(img);
+        }
+      }
       this.isFinished = true;
       return;
     }
