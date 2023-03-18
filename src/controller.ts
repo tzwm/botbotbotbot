@@ -9,6 +9,7 @@ import { RPG } from "./modes/rpg.js";
 import { StoryDreamily } from "./modes/story_dreamily.js";
 import { Translator } from "./modes/translator.js";
 import { DreamilyAPI } from "dreamily-api";
+import { Guessle } from "./modes/guessle.js";
 
 interface Services {
   chatgpt?: ChatGPTAPI;
@@ -119,6 +120,9 @@ export class Controller {
     const mode = removeCmdPrefix(message).toLowerCase();
     let session: Conversation | undefined;
     //TODO: Improve it
+    if (mode === "guessle") {
+      session = new Guessle();
+    }
     if (this.services["chatgpt"]) {
       switch(mode) {
         case "chat":

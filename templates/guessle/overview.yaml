@@ -1,0 +1,11 @@
+name: Guessle
+description: 每日一猜
+entry: guessle
+services_required:
+  #- chatgpt
+commands:
+  - command: open
+    description: 开一局
+  - command: guess
+    description: 猜一下
+default_command: guess
