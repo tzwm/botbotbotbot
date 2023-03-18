@@ -1,0 +1,8 @@
+opening: 看图猜星座，请用中文回复星座名
+answer:
+  - 金牛座
+steps:
+  - lark_image_key: img_v2_efc95f68-d131-4906-885d-28a0e1e4ba0g
+  - lark_image_key: img_v2_74d42867-ece3-44f1-bee4-c2ed40b2719g
+  - lark_image_key: img_v2_de148d98-afd5-4c89-a157-2aee8d7253ag
+  - lark_image_key: img_v2_813d333f-5c26-402b-841b-e9a3bda3f74g

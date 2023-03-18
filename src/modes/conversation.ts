@@ -8,7 +8,7 @@ import { requestChatGPT } from "../utils.js";
 import fs from "fs";
 import YAML from "yaml";
 
-type ServiceType = ChatGPTAPI | DreamilyAPI;
+type ServiceType = ChatGPTAPI | DreamilyAPI | null;
 
 
 export abstract class Conversation {

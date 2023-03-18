@@ -28,4 +28,4 @@ new LarkMessenger(
 
 //new WechatBot(controller).start();
 
-new WxworkBot(controller).start();
+//new WxworkBot(controller).start();

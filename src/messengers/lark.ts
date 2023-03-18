@@ -2,6 +2,7 @@ import http from "http";
 import * as lark from "@larksuiteoapi/node-sdk";
 import { Controller } from "../controller.js";
 import * as types from "../types.js";
+import { FileBox } from "file-box";
 
 
 export class LarkMessenger {
@@ -96,15 +97,27 @@ export class LarkMessenger {
   }
 
   private makeReplyFunc(messageId: string): Function {
-    return (content: string) => {
+    return (content: string | FileBox) => {
+      let data = {
+        msg_type: "text",
+        content: JSON.stringify({text: content }),
+      }
+      if (content instanceof FileBox) {
+        if (content.metadata.larkImageKey) {
+          data = {
+            msg_type: "image",
+            content: JSON.stringify({
+              image_key: content.metadata.larkImageKey,
+            }),
+          }
+        }
+      }
+
       this.client.im.message.reply({
         path: {
           message_id: messageId,
         },
-        data: {
-          content: JSON.stringify({text: content }),
-          msg_type: "text",
-        },
+        data: data,
       })
     };
   }
