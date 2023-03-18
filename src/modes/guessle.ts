@@ -37,7 +37,11 @@ export class Guessle extends Conversation {
 
     const gameData = this.getGameData();
     if (gameData === null) {
-      env.replyFunc("没找到这个局，直接 /open 吧");
+      if (this.gameID == this.todayStr()) {
+        env.replyFunc("呃，不好意思，今天的内容还没准备好");
+      } else {
+        env.replyFunc("没找到这个局，直接 /open 吧");
+      }
       return;
     }
 
