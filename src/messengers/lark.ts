@@ -55,13 +55,15 @@ export class LarkMessenger {
       msg: "ignored",
     }
     const messageData = data.message;
+    const sessionId = messageData.root_id ? messageData.root_id : messageData.message_id;
+
     if (messageData.message_type != "text") {
       return ignore_ret;
     }
     if (messageData.chat_type === "group") {
       // thread 内不用 at 触发，thread 外需要 at bot
-      if (!messageData.root_id) {
-        if (!messageData.mentions) {
+      if (!messageData.root_id) { // 不在 thread 里
+        if (!messageData.mentions) { // 没有 at
           return ignore_ret;
         }
 
@@ -70,13 +72,16 @@ export class LarkMessenger {
         if (mention_names.indexOf(process.env.LARK_BOT_NAME) === -1) {
           return ignore_ret;
         }
+      } else { // 在 thread 里
+        if (!this.controller.sessions.get(sessionId)) { // 不是有效的游戏 session
+          return ignore_ret;
+        }
       }
     }
 
     const replyFunc = this.makeReplyFunc(messageData.message_id);
     const content = JSON.parse(data.message.content)["text"].replace(/@_user\S+/g, "").trim();
 
-    const sessionId = messageData.root_id ? messageData.root_id : messageData.message_id;
     const env: types.Env = {
       senderId: sessionId,
       senderName: data.sender.sender_id.user_id ,
